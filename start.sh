@@ -45,18 +45,17 @@ echo "[vjepa2] SSH daemon started"
 chown -R dev:dev /workspace 2>/dev/null || true
 echo "[vjepa2] Workspace permissions set"
 
-# --- Model Weights Download (Optional) ---
-# Uncomment to auto-download V-JEPA 2-AC weights
-# MODEL_DIR="/workspace/models"
-# mkdir -p "$MODEL_DIR"
-# if [ ! -f "$MODEL_DIR/vjepa2-ac-vitg.pt" ]; then
-#     echo "[vjepa2] Downloading V-JEPA 2-AC Giant weights..."
-#     wget -q --show-progress https://dl.fbaipublicfiles.com/vjepa2/vjepa2-ac-vitg.pt -O "$MODEL_DIR/vjepa2-ac-vitg.pt"
-#     chown -R dev:dev "$MODEL_DIR"
-#     echo "[vjepa2] Model weights downloaded"
-# else
-#     echo "[vjepa2] Model weights already exist"
-# fi
+# --- Model Weights Download ---
+MODEL_DIR="/workspace/models"
+mkdir -p "$MODEL_DIR"
+if [ ! -f "$MODEL_DIR/vjepa2-ac-vitg.pt" ]; then
+    echo "[vjepa2] Downloading V-JEPA 2-AC Giant weights (~2GB)..."
+    wget -q --show-progress https://dl.fbaipublicfiles.com/vjepa2/vjepa2-ac-vitg.pt -O "$MODEL_DIR/vjepa2-ac-vitg.pt"
+    chown -R dev:dev "$MODEL_DIR"
+    echo "[vjepa2] Model weights downloaded"
+else
+    echo "[vjepa2] Model weights already exist, skipping download"
+fi
 
 echo "[vjepa2] Container setup complete!"
 echo "[vjepa2] SSH available on port 22"
