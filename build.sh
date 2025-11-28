@@ -12,7 +12,7 @@
 set -e
 
 # Default Docker Hub username (change this to yours)
-DOCKER_USER="${2:-yuboruan}"
+DOCKER_USER="${2:-yuboruan123}"
 IMAGE_NAME="vjepa2"
 TAG="latest"
 
