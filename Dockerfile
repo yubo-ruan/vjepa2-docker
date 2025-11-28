@@ -187,7 +187,7 @@ RUN pip install --no-cache-dir \
 # ============================================
 # Create default extensions.json to auto-recommend Claude Code
 RUN mkdir -p /workspace/.vscode \
-    && echo '{"recommendations": ["anthropics.claude-code"]}' > /workspace/.vscode/extensions.json
+    && echo '{"recommendations": ["anthropic.claude-code"]}' > /workspace/.vscode/extensions.json
 
 # ============================================
 # Workspace Setup
