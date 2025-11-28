@@ -22,7 +22,7 @@ ENV TORCH_HOME=/workspace/.cache/torch
 # ============================================
 # System Packages
 # ============================================
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     # SSH
     openssh-server \
     # Development
@@ -52,9 +52,21 @@ RUN apt-get update && apt-get install -y \
     # Networking tools
     net-tools \
     iputils-ping \
+    # For EGL/headless rendering (DROID)
+    libegl1-mesa-dev \
+    libgl1-mesa-dev \
     # Clean up
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# ============================================
+# Node.js 18 (for frontend development)
+# ============================================
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && npm install -g npm@latest
 
 # ============================================
 # SSH Configuration
@@ -102,7 +114,8 @@ RUN pip install --no-cache-dir \
     peft \
     transformers \
     accelerate \
-    safetensors
+    safetensors \
+    bitsandbytes
 
 # Layer 2: Video/Image processing
 RUN pip install --no-cache-dir \
@@ -110,12 +123,15 @@ RUN pip install --no-cache-dir \
     opencv-python-headless \
     pillow \
     imageio \
-    imageio-ffmpeg
+    imageio-ffmpeg \
+    h5py
 
 # Layer 3: Robotics
 RUN pip install --no-cache-dir \
     mujoco \
-    robosuite
+    robosuite \
+    egl_probe \
+    diffusers
 
 # Layer 4: Web/API
 RUN pip install --no-cache-dir \
@@ -125,7 +141,8 @@ RUN pip install --no-cache-dir \
     python-multipart \
     aiofiles \
     httpx \
-    pydantic
+    pydantic \
+    pydantic-settings
 
 # Layer 5: Scientific computing
 RUN pip install --no-cache-dir \
@@ -142,7 +159,10 @@ RUN pip install --no-cache-dir \
     ipywidgets \
     tqdm \
     rich \
-    tensorboard
+    tensorboard \
+    tensorboardX \
+    termcolor \
+    psutil
 
 # Layer 7: Additional utilities
 RUN pip install --no-cache-dir \
@@ -151,6 +171,12 @@ RUN pip install --no-cache-dir \
     omegaconf \
     hydra-core \
     PyYAML
+
+# Layer 8: TensorFlow and data loading (for DROID/RLDS datasets)
+RUN pip install --no-cache-dir \
+    tensorflow \
+    tensorflow-datasets \
+    google-cloud-storage
 
 # ============================================
 # Workspace Setup
@@ -165,6 +191,10 @@ RUN mkdir -p /workspace/.cache/huggingface \
 # ============================================
 WORKDIR /workspace
 
+# Copy startup script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
 # Expose ports: SSH, Next.js, FastAPI, Jupyter
 EXPOSE 22 3000 8000 8888
 
@@ -172,5 +202,5 @@ EXPOSE 22 3000 8000 8888
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD pgrep sshd > /dev/null || exit 1
 
-# Default command
-CMD ["/bin/bash"]
+# Use start.sh as entrypoint (can be overridden)
+ENTRYPOINT ["/start.sh"]

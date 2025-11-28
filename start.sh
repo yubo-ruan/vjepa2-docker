@@ -14,8 +14,15 @@ set -e
 echo "[vjepa2] Starting container setup..."
 
 # --- SSH Key Configuration ---
-# Replace YOUR_PUBLIC_KEY with your actual SSH public key
-SSH_PUBLIC_KEY="${SSH_PUBLIC_KEY:-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGb+bbXSJKrqZiZ7yDop57kBU5zJ2SseIEBMc42aHpn/ yubo-runpod}"
+# SSH_PUBLIC_KEY must be provided as an environment variable
+# On GPU clouds (RunPod, Vast.ai, etc.): Set it in the environment variables UI
+# Local testing: docker run -e SSH_PUBLIC_KEY="ssh-ed25519 AAAA... you@host" ...
+if [ -z "$SSH_PUBLIC_KEY" ]; then
+    echo "[ERROR] SSH_PUBLIC_KEY environment variable is not set!"
+    echo "[ERROR] Please provide your SSH public key to enable remote access."
+    echo "[ERROR] Example: -e SSH_PUBLIC_KEY=\"ssh-ed25519 AAAA... user@host\""
+    exit 1
+fi
 
 # Setup SSH for root
 mkdir -p /root/.ssh
