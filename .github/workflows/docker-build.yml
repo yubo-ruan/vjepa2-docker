@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'Dockerfile'
-      - 'start.sh'
-      - '.github/workflows/docker-build.yml'
   workflow_dispatch:  # Allow manual trigger
 
 env:
