@@ -130,12 +130,16 @@ RUN pip install --no-cache-dir \
     imageio-ffmpeg \
     h5py
 
-# Layer 3: Robotics
+# Layer 3: Robotics (robosuite, LIBERO dependencies)
 RUN pip install --no-cache-dir \
     mujoco \
     robosuite \
     egl_probe \
-    diffusers
+    diffusers \
+    robomimic \
+    bddl \
+    gym \
+    cloudpickle
 
 # Layer 4: Web/API
 RUN pip install --no-cache-dir \
@@ -174,7 +178,10 @@ RUN pip install --no-cache-dir \
     wandb \
     omegaconf \
     hydra-core \
-    PyYAML
+    PyYAML \
+    easydict \
+    thop \
+    future
 
 # Layer 8: TensorFlow and data loading (for DROID/RLDS datasets)
 RUN pip install --no-cache-dir \

@@ -58,6 +58,19 @@ else
     echo "[vjepa2] V-JEPA repository already exists"
 fi
 
+# --- Clone LIBERO Repository ---
+LIBERO_DIR="/workspace/LIBERO"
+if [ ! -d "$LIBERO_DIR" ]; then
+    echo "[vjepa2] Cloning LIBERO repository..."
+    git clone https://github.com/Lifelong-Robot-Learning/LIBERO.git "$LIBERO_DIR"
+    cd "$LIBERO_DIR"
+    pip install -e . --quiet
+    chown -R dev:dev "$LIBERO_DIR"
+    echo "[vjepa2] LIBERO installed in editable mode"
+else
+    echo "[vjepa2] LIBERO repository already exists"
+fi
+
 # --- Model Weights Download ---
 MODEL_DIR="/workspace/models"
 mkdir -p "$MODEL_DIR"
