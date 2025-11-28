@@ -91,6 +91,13 @@ RUN useradd -m -s /bin/bash -G sudo dev \
     && chmod 700 /home/dev/.ssh
 
 # ============================================
+# Git Configuration (for commits inside container)
+# ============================================
+RUN git config --system user.name "dev" \
+    && git config --system user.email "dev@vjepa2-container" \
+    && git config --system init.defaultBranch main
+
+# ============================================
 # Shell Configuration (root + dev)
 # ============================================
 RUN echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /root/.bashrc \

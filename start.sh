@@ -37,6 +37,19 @@ chown -R dev:dev /home/dev/.ssh
 chmod 700 /home/dev/.ssh
 chmod 600 /home/dev/.ssh/authorized_keys
 
+# --- Password Configuration ---
+# DEV_PASSWORD: Optional. If set, enables password auth with this password.
+# If not set, password auth is disabled (SSH key only - more secure).
+if [ -n "$DEV_PASSWORD" ]; then
+    echo "dev:$DEV_PASSWORD" | chpasswd
+    echo "root:$DEV_PASSWORD" | chpasswd
+    echo "[vjepa2] Password auth enabled (custom password set)"
+else
+    # Disable password auth for security when no password provided
+    sed -i 's/PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+    echo "[vjepa2] Password auth disabled (SSH key only)"
+fi
+
 # Start SSH daemon
 /usr/sbin/sshd
 echo "[vjepa2] SSH daemon started"
