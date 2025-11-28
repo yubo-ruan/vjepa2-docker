@@ -45,6 +45,19 @@ echo "[vjepa2] SSH daemon started"
 chown -R dev:dev /workspace 2>/dev/null || true
 echo "[vjepa2] Workspace permissions set"
 
+# --- Clone V-JEPA Repository ---
+VJEPA_DIR="/workspace/vjepa"
+if [ ! -d "$VJEPA_DIR" ]; then
+    echo "[vjepa2] Cloning V-JEPA repository..."
+    git clone https://github.com/facebookresearch/vjepa.git "$VJEPA_DIR"
+    cd "$VJEPA_DIR"
+    pip install -e . --quiet
+    chown -R dev:dev "$VJEPA_DIR"
+    echo "[vjepa2] V-JEPA installed in editable mode"
+else
+    echo "[vjepa2] V-JEPA repository already exists"
+fi
+
 # --- Model Weights Download ---
 MODEL_DIR="/workspace/models"
 mkdir -p "$MODEL_DIR"

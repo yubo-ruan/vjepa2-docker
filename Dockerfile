@@ -183,6 +183,13 @@ RUN pip install --no-cache-dir \
     google-cloud-storage
 
 # ============================================
+# VS Code Server setup
+# ============================================
+# Create default extensions.json to auto-recommend Claude Code
+RUN mkdir -p /workspace/.vscode \
+    && echo '{"recommendations": ["anthropics.claude-code"]}' > /workspace/.vscode/extensions.json
+
+# ============================================
 # Workspace Setup
 # ============================================
 RUN mkdir -p /workspace/.cache/huggingface \
