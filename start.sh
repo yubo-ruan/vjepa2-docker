@@ -59,7 +59,21 @@ echo "[vjepa2] SSH daemon started"
 # Create token at: https://github.com/settings/tokens (needs 'repo' scope)
 if [ -n "$GH_TOKEN" ]; then
     echo "$GH_TOKEN" | gh auth login --with-token
-    echo "[vjepa2] GitHub CLI authenticated"
+    # Auto-configure git identity from GitHub account
+    GH_USER=$(gh api user -q .login 2>/dev/null || echo "")
+    GH_EMAIL=$(gh api user -q .email 2>/dev/null || echo "")
+    if [ -n "$GH_USER" ]; then
+        git config --global user.name "$GH_USER"
+        # Use noreply email if no public email set
+        if [ -n "$GH_EMAIL" ] && [ "$GH_EMAIL" != "null" ]; then
+            git config --global user.email "$GH_EMAIL"
+        else
+            git config --global user.email "$GH_USER@users.noreply.github.com"
+        fi
+        echo "[vjepa2] GitHub CLI authenticated (git user: $GH_USER)"
+    else
+        echo "[vjepa2] GitHub CLI authenticated"
+    fi
 else
     echo "[vjepa2] GitHub CLI not authenticated (set GH_TOKEN to enable)"
 fi
