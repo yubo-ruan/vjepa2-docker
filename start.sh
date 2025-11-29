@@ -56,7 +56,7 @@ echo "[vjepa2] SSH daemon started"
 
 # --- GitHub CLI Authentication ---
 # GH_TOKEN: Optional. If set, auto-login to GitHub CLI.
-# Create token at: https://github.com/settings/tokens (needs 'repo' scope)
+# Create token at: https://github.com/settings/tokens (needs 'repo', 'gist' scope)
 if [ -n "$GH_TOKEN" ]; then
     echo "$GH_TOKEN" | gh auth login --with-token
     # Auto-configure git identity from GitHub account
@@ -74,6 +74,69 @@ if [ -n "$GH_TOKEN" ]; then
     else
         echo "[vjepa2] GitHub CLI authenticated"
     fi
+
+    # --- Claude Code Backup/Restore via GitHub Gist ---
+    GIST_NAME="claude-code-backup.tar.gz"
+
+    # Create backup script
+    cat > /usr/local/bin/claude-backup.sh << 'BACKUP_EOF'
+#!/bin/bash
+GIST_NAME="claude-code-backup.tar.gz"
+BACKUP_FILE="/tmp/$GIST_NAME"
+
+# Backup both root and dev user's .claude directories
+mkdir -p /tmp/claude-backup
+[ -d /root/.claude ] && cp -r /root/.claude /tmp/claude-backup/root-claude
+[ -d /home/dev/.claude ] && cp -r /home/dev/.claude /tmp/claude-backup/dev-claude
+
+if [ -d /tmp/claude-backup/root-claude ] || [ -d /tmp/claude-backup/dev-claude ]; then
+    tar -czf "$BACKUP_FILE" -C /tmp claude-backup
+
+    # Find existing gist or create new one
+    GIST_ID=$(gh gist list --limit 100 2>/dev/null | grep "$GIST_NAME" | head -1 | awk '{print $1}')
+    if [ -n "$GIST_ID" ]; then
+        gh gist edit "$GIST_ID" -a "$BACKUP_FILE" 2>/dev/null && echo "[claude-backup] Updated gist $GIST_ID"
+    else
+        gh gist create --private -d "Claude Code conversation backup" "$BACKUP_FILE" 2>/dev/null && echo "[claude-backup] Created new backup gist"
+    fi
+
+    rm -rf /tmp/claude-backup "$BACKUP_FILE"
+fi
+BACKUP_EOF
+    chmod +x /usr/local/bin/claude-backup.sh
+
+    # Create restore script
+    cat > /usr/local/bin/claude-restore.sh << 'RESTORE_EOF'
+#!/bin/bash
+GIST_NAME="claude-code-backup.tar.gz"
+
+# Find the backup gist
+GIST_ID=$(gh gist list --limit 100 2>/dev/null | grep "$GIST_NAME" | head -1 | awk '{print $1}')
+if [ -n "$GIST_ID" ]; then
+    echo "[claude-restore] Found backup gist: $GIST_ID"
+    cd /tmp
+    gh gist clone "$GIST_ID" claude-restore-tmp 2>/dev/null
+    if [ -f "/tmp/claude-restore-tmp/$GIST_NAME" ]; then
+        tar -xzf "/tmp/claude-restore-tmp/$GIST_NAME" -C /tmp
+        [ -d /tmp/claude-backup/root-claude ] && cp -r /tmp/claude-backup/root-claude /root/.claude
+        [ -d /tmp/claude-backup/dev-claude ] && cp -r /tmp/claude-backup/dev-claude /home/dev/.claude && chown -R dev:dev /home/dev/.claude
+        echo "[claude-restore] Restored Claude Code data"
+    fi
+    rm -rf /tmp/claude-restore-tmp /tmp/claude-backup
+else
+    echo "[claude-restore] No backup gist found"
+fi
+RESTORE_EOF
+    chmod +x /usr/local/bin/claude-restore.sh
+
+    # Restore from gist on startup
+    /usr/local/bin/claude-restore.sh
+
+    # Setup hourly backup cron job
+    echo "0 * * * * /usr/local/bin/claude-backup.sh" > /etc/cron.d/claude-backup
+    chmod 644 /etc/cron.d/claude-backup
+    service cron start 2>/dev/null || true
+    echo "[vjepa2] Claude Code backup cron job installed (hourly)"
 else
     echo "[vjepa2] GitHub CLI not authenticated (set GH_TOKEN to enable)"
 fi

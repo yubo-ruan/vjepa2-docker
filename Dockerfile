@@ -55,6 +55,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # For EGL/headless rendering (DROID)
     libegl1-mesa-dev \
     libgl1-mesa-dev \
+    # For cron jobs (Claude backup)
+    cron \
     # Clean up
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
