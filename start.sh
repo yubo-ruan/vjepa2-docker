@@ -54,6 +54,16 @@ fi
 /usr/sbin/sshd
 echo "[vjepa2] SSH daemon started"
 
+# --- GitHub CLI Authentication ---
+# GH_TOKEN: Optional. If set, auto-login to GitHub CLI.
+# Create token at: https://github.com/settings/tokens (needs 'repo' scope)
+if [ -n "$GH_TOKEN" ]; then
+    echo "$GH_TOKEN" | gh auth login --with-token
+    echo "[vjepa2] GitHub CLI authenticated"
+else
+    echo "[vjepa2] GitHub CLI not authenticated (set GH_TOKEN to enable)"
+fi
+
 # --- Workspace Permissions ---
 chown -R dev:dev /workspace 2>/dev/null || true
 echo "[vjepa2] Workspace permissions set"
