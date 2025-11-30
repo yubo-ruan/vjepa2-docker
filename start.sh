@@ -171,6 +171,19 @@ else
     echo "[vjepa2] LIBERO repository already exists"
 fi
 
+# --- Clone V-JEPA 2 Policy Head Repository ---
+POLICY_DIR="/workspace/vjepa2-policy-head"
+if [ ! -d "$POLICY_DIR" ]; then
+    echo "[vjepa2] Cloning vjepa2-policy-head repository..."
+    git clone https://github.com/yubo-ruan/vjepa2-policy-head.git "$POLICY_DIR"
+    cd "$POLICY_DIR"
+    pip install -e . --quiet 2>/dev/null || true
+    chown -R dev:dev "$POLICY_DIR"
+    echo "[vjepa2] vjepa2-policy-head cloned"
+else
+    echo "[vjepa2] vjepa2-policy-head repository already exists"
+fi
+
 # --- Model Weights Download ---
 MODEL_DIR="/workspace/models"
 mkdir -p "$MODEL_DIR"
