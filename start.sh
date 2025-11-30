@@ -54,6 +54,16 @@ fi
 /usr/sbin/sshd
 echo "[vjepa2] SSH daemon started"
 
+# --- Weights & Biases Authentication ---
+# WANDB_API_KEY: Optional. If set, auto-login to wandb.
+# Get your key at: https://wandb.ai/authorize
+if [ -n "$WANDB_API_KEY" ]; then
+    wandb login "$WANDB_API_KEY" 2>/dev/null
+    echo "[vjepa2] Weights & Biases authenticated"
+else
+    echo "[vjepa2] Weights & Biases not authenticated (set WANDB_API_KEY to enable)"
+fi
+
 # --- GitHub CLI Authentication ---
 # GH_TOKEN: Optional. If set, auto-login to GitHub CLI.
 # Create token at: https://github.com/settings/tokens (needs 'repo', 'gist' scope)
