@@ -155,17 +155,17 @@ fi
 chown -R dev:dev /workspace 2>/dev/null || true
 echo "[vjepa2] Workspace permissions set"
 
-# --- Clone V-JEPA Repository ---
-VJEPA_DIR="/workspace/vjepa"
-if [ ! -d "$VJEPA_DIR" ]; then
-    echo "[vjepa2] Cloning V-JEPA repository..."
-    git clone https://github.com/facebookresearch/vjepa2.git "$VJEPA_DIR"
-    cd "$VJEPA_DIR"
-    pip install -e . --quiet
-    chown -R dev:dev "$VJEPA_DIR"
-    echo "[vjepa2] V-JEPA installed in editable mode"
+# --- Clone Brain Robot Repository ---
+BRAIN_ROBOT_DIR="/workspace/brain-robot"
+if [ ! -d "$BRAIN_ROBOT_DIR" ]; then
+    echo "[vjepa2] Cloning brain-robot repository..."
+    git clone https://github.com/yubo-ruan/brain-robot.git "$BRAIN_ROBOT_DIR"
+    cd "$BRAIN_ROBOT_DIR"
+    pip install -e . --quiet 2>/dev/null || true
+    chown -R dev:dev "$BRAIN_ROBOT_DIR"
+    echo "[vjepa2] brain-robot cloned"
 else
-    echo "[vjepa2] V-JEPA repository already exists"
+    echo "[vjepa2] brain-robot repository already exists"
 fi
 
 # --- Clone LIBERO Repository ---
