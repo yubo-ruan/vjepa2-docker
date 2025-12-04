@@ -97,13 +97,22 @@ RUN mkdir -p /run/sshd \
     && sed -i "s/#X11Forwarding.*/X11Forwarding yes/" /etc/ssh/sshd_config
 
 # ============================================
-# Create dev user with sudo access
+# Create yubo user with sudo access
 # ============================================
-RUN useradd -m -s /bin/bash -G sudo dev \
-    && echo "dev:dev" | chpasswd \
-    && echo "dev ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
-    && mkdir -p /home/dev/.ssh \
-    && chmod 700 /home/dev/.ssh
+RUN useradd -m -s /bin/bash -G sudo yubo \
+    && echo "yubo:yubo" | chpasswd \
+    && echo "yubo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
+    && mkdir -p /home/yubo/.ssh \
+    && chmod 700 /home/yubo/.ssh
+
+# ============================================
+# Create jason user with sudo access
+# ============================================
+RUN useradd -m -s /bin/bash -G sudo jason \
+    && echo "jason:jason" | chpasswd \
+    && echo "jason ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
+    && mkdir -p /home/jason/.ssh \
+    && chmod 700 /home/jason/.ssh
 
 # ============================================
 # Git Configuration (for commits inside container)
@@ -113,7 +122,7 @@ RUN git config --system user.name "dev" \
     && git config --system init.defaultBranch main
 
 # ============================================
-# Shell Configuration (root + dev)
+# Shell Configuration (root + yubo + jason)
 # ============================================
 RUN echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /root/.bashrc \
     && echo 'source /opt/conda/etc/profile.d/conda.sh' >> /root/.bashrc \
@@ -121,15 +130,24 @@ RUN echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /root/.bashrc
     && echo 'export HF_HOME=/workspace/.cache/huggingface' >> /root/.bashrc \
     && echo 'export TORCH_HOME=/workspace/.cache/torch' >> /root/.bashrc \
     && echo 'export CLAUDE_CONFIG_DIR=/workspace/.claude' >> /root/.bashrc \
-    # Dev user
-    && echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /home/dev/.bashrc \
-    && echo 'source /opt/conda/etc/profile.d/conda.sh' >> /home/dev/.bashrc \
-    && echo 'conda activate base' >> /home/dev/.bashrc \
-    && echo 'export HF_HOME=/workspace/.cache/huggingface' >> /home/dev/.bashrc \
-    && echo 'export TORCH_HOME=/workspace/.cache/torch' >> /home/dev/.bashrc \
-    && echo 'export CLAUDE_CONFIG_DIR=/workspace/.claude' >> /home/dev/.bashrc \
-    && echo 'cd /workspace' >> /home/dev/.bashrc \
-    && chown dev:dev /home/dev/.bashrc
+    # yubo user
+    && echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /home/yubo/.bashrc \
+    && echo 'source /opt/conda/etc/profile.d/conda.sh' >> /home/yubo/.bashrc \
+    && echo 'conda activate base' >> /home/yubo/.bashrc \
+    && echo 'export HF_HOME=/workspace/.cache/huggingface' >> /home/yubo/.bashrc \
+    && echo 'export TORCH_HOME=/workspace/.cache/torch' >> /home/yubo/.bashrc \
+    && echo 'export CLAUDE_CONFIG_DIR=/workspace/.claude' >> /home/yubo/.bashrc \
+    && echo 'cd /workspace' >> /home/yubo/.bashrc \
+    && chown yubo:yubo /home/yubo/.bashrc \
+    # jason user
+    && echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /home/jason/.bashrc \
+    && echo 'source /opt/conda/etc/profile.d/conda.sh' >> /home/jason/.bashrc \
+    && echo 'conda activate base' >> /home/jason/.bashrc \
+    && echo 'export HF_HOME=/workspace/.cache/huggingface' >> /home/jason/.bashrc \
+    && echo 'export TORCH_HOME=/workspace/.cache/torch' >> /home/jason/.bashrc \
+    && echo 'export CLAUDE_CONFIG_DIR=/workspace/.claude' >> /home/jason/.bashrc \
+    && echo 'cd /workspace' >> /home/jason/.bashrc \
+    && chown jason:jason /home/jason/.bashrc
 
 # ============================================
 # Python Packages - Split into layers for better caching
@@ -226,7 +244,7 @@ RUN mkdir -p /workspace/.vscode \
 RUN mkdir -p /workspace/.cache/huggingface \
     && mkdir -p /workspace/.cache/torch \
     && mkdir -p /workspace/models \
-    && chown -R dev:dev /workspace
+    && chown -R yubo:yubo /workspace
 
 # ============================================
 # Final Configuration

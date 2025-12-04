@@ -13,7 +13,8 @@ set -e
 echo "[vjepa2] Starting container setup..."
 
 # --- SSH Key Configuration ---
-# SSH_PUBLIC_KEY must be provided as an environment variable
+# SSH_PUBLIC_KEY: Required. Yubo's SSH public key.
+# JASON_SSH_PUBLIC_KEY: Optional. Jason's SSH public key.
 # On GPU clouds (RunPod, Vast.ai, etc.): Set it in the environment variables UI
 # Local testing: docker run -e SSH_PUBLIC_KEY="ssh-ed25519 AAAA... you@host" ...
 if [ -z "$SSH_PUBLIC_KEY" ]; then
@@ -29,19 +30,34 @@ echo "$SSH_PUBLIC_KEY" > /root/.ssh/authorized_keys
 chmod 700 /root/.ssh
 chmod 600 /root/.ssh/authorized_keys
 
-# Setup SSH for dev user
-mkdir -p /home/dev/.ssh
-echo "$SSH_PUBLIC_KEY" > /home/dev/.ssh/authorized_keys
-chown -R dev:dev /home/dev/.ssh
-chmod 700 /home/dev/.ssh
-chmod 600 /home/dev/.ssh/authorized_keys
+# Setup SSH for yubo user
+mkdir -p /home/yubo/.ssh
+echo "$SSH_PUBLIC_KEY" > /home/yubo/.ssh/authorized_keys
+chown -R yubo:yubo /home/yubo/.ssh
+chmod 700 /home/yubo/.ssh
+chmod 600 /home/yubo/.ssh/authorized_keys
+
+# Setup SSH for jason user
+mkdir -p /home/jason/.ssh
+if [ -n "$JASON_SSH_PUBLIC_KEY" ]; then
+    echo "$JASON_SSH_PUBLIC_KEY" > /home/jason/.ssh/authorized_keys
+    echo "[vjepa2] Jason SSH key configured"
+else
+    # No key provided, leave authorized_keys empty
+    touch /home/jason/.ssh/authorized_keys
+    echo "[vjepa2] Jason SSH key not provided (set JASON_SSH_PUBLIC_KEY to enable)"
+fi
+chown -R jason:jason /home/jason/.ssh
+chmod 700 /home/jason/.ssh
+chmod 600 /home/jason/.ssh/authorized_keys
 
 # --- Password Configuration ---
-# DEV_PASSWORD: Optional. If set, enables password auth with this password.
+# USER_PASSWORD: Optional. If set, enables password auth with this password.
 # If not set, password auth is disabled (SSH key only - more secure).
-if [ -n "$DEV_PASSWORD" ]; then
-    echo "dev:$DEV_PASSWORD" | chpasswd
-    echo "root:$DEV_PASSWORD" | chpasswd
+if [ -n "$USER_PASSWORD" ]; then
+    echo "yubo:$USER_PASSWORD" | chpasswd
+    echo "jason:$USER_PASSWORD" | chpasswd
+    echo "root:$USER_PASSWORD" | chpasswd
     echo "[vjepa2] Password auth enabled (custom password set)"
 else
     # Disable password auth for security when no password provided
@@ -93,12 +109,12 @@ if [ -n "$GH_TOKEN" ]; then
 GIST_NAME="claude-code-backup.tar.gz"
 BACKUP_FILE="/tmp/$GIST_NAME"
 
-# Backup both root and dev user's .claude directories
+# Backup both root and yubo user's .claude directories
 mkdir -p /tmp/claude-backup
 [ -d /root/.claude ] && cp -r /root/.claude /tmp/claude-backup/root-claude
-[ -d /home/dev/.claude ] && cp -r /home/dev/.claude /tmp/claude-backup/dev-claude
+[ -d /home/yubo/.claude ] && cp -r /home/yubo/.claude /tmp/claude-backup/yubo-claude
 
-if [ -d /tmp/claude-backup/root-claude ] || [ -d /tmp/claude-backup/dev-claude ]; then
+if [ -d /tmp/claude-backup/root-claude ] || [ -d /tmp/claude-backup/yubo-claude ]; then
     tar -czf "$BACKUP_FILE" -C /tmp claude-backup
 
     # Find existing gist or create new one
@@ -128,7 +144,7 @@ if [ -n "$GIST_ID" ]; then
     if [ -f "/tmp/claude-restore-tmp/$GIST_NAME" ]; then
         tar -xzf "/tmp/claude-restore-tmp/$GIST_NAME" -C /tmp
         [ -d /tmp/claude-backup/root-claude ] && cp -r /tmp/claude-backup/root-claude /root/.claude
-        [ -d /tmp/claude-backup/dev-claude ] && cp -r /tmp/claude-backup/dev-claude /home/dev/.claude && chown -R dev:dev /home/dev/.claude
+        [ -d /tmp/claude-backup/yubo-claude ] && cp -r /tmp/claude-backup/yubo-claude /home/yubo/.claude && chown -R yubo:yubo /home/yubo/.claude
         echo "[claude-restore] Restored Claude Code data"
     fi
     rm -rf /tmp/claude-restore-tmp /tmp/claude-backup
@@ -151,12 +167,12 @@ else
 fi
 
 # --- Workspace Permissions ---
-chown -R dev:dev /workspace 2>/dev/null || true
+chown -R yubo:yubo /workspace 2>/dev/null || true
 echo "[vjepa2] Workspace permissions set"
 
 echo "[vjepa2] Container setup complete!"
 echo "[vjepa2] SSH available on port 22"
-echo "[vjepa2] You can connect as 'root' or 'dev' user"
+echo "[vjepa2] You can connect as 'root', 'yubo', or 'jason' user"
 
 # Keep container alive
 exec tail -f /dev/null
