@@ -112,31 +112,26 @@ RUN echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /root/.bashrc
 # Python Packages
 # ============================================
 RUN pip install --no-cache-dir \
-    # Core ML (brain-robot requirements)
-    transformers \
-    accelerate \
-    safetensors \
-    gymnasium \
-    huggingface_hub \
-    # Robotics simulation
+    # Robotics
     robosuite \
     mujoco \
+    libero \
     # Perception
     ultralytics \
     open3d \
-    # Qwen VL
-    qwen-vl-utils \
-    # Scientific computing
+    # Grasp planning
     scipy \
     scikit-image \
+    # VLM
+    qwen-vl-utils \
+    transformers \
+    accelerate \
     # Visualization & Logging
     matplotlib \
     wandb \
     # Dev tools
     tqdm \
     rich \
-    termcolor \
-    psutil \
     PyYAML
 
 # ============================================
