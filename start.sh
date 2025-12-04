@@ -81,7 +81,7 @@ fi
 
 # --- GitHub CLI Authentication (yubo user) ---
 # GH_TOKEN: Optional. If set, auto-login to GitHub CLI for yubo user.
-# Create token at: https://github.com/settings/tokens (needs 'repo', 'gist' scope)
+# Create token at: https://github.com/settings/tokens (needs 'repo' scope)
 if [ -n "$GH_TOKEN" ]; then
     # Authenticate as yubo user
     su - yubo -c "echo '$GH_TOKEN' | gh auth login --with-token"
@@ -100,78 +100,6 @@ if [ -n "$GH_TOKEN" ]; then
     else
         echo "[vjepa2] GitHub CLI authenticated for yubo"
     fi
-
-    # --- Claude Code Backup/Restore via GitHub Gist ---
-    GIST_NAME="claude-code-backup.tar.gz"
-
-    # Create backup script (runs as yubo to use gh auth)
-    cat > /usr/local/bin/claude-backup.sh << 'BACKUP_EOF'
-#!/bin/bash
-# Run the actual backup as yubo user (who has gh auth)
-su - yubo -c '
-GIST_NAME="claude-code-backup.tar.gz"
-BACKUP_FILE="/tmp/$GIST_NAME"
-
-# Backup yubo and jason claude directories
-mkdir -p /tmp/claude-backup
-[ -d /workspace/.claude-yubo ] && cp -rL /workspace/.claude-yubo /tmp/claude-backup/yubo-claude
-[ -d /workspace/.claude-jason ] && cp -rL /workspace/.claude-jason /tmp/claude-backup/jason-claude
-
-if [ -d /tmp/claude-backup/yubo-claude ] || [ -d /tmp/claude-backup/jason-claude ]; then
-    tar -czf "$BACKUP_FILE" -C /tmp claude-backup
-
-    # Find existing gist or create new one
-    GIST_ID=$(gh gist list --limit 100 2>/dev/null | grep "$GIST_NAME" | head -1 | awk "{print \$1}")
-    if [ -n "$GIST_ID" ]; then
-        gh gist edit "$GIST_ID" -a "$BACKUP_FILE" 2>/dev/null && echo "[claude-backup] Updated gist $GIST_ID"
-    else
-        gh gist create --private -d "Claude Code conversation backup" "$BACKUP_FILE" 2>/dev/null && echo "[claude-backup] Created new backup gist"
-    fi
-
-    rm -rf /tmp/claude-backup "$BACKUP_FILE"
-fi
-'
-BACKUP_EOF
-    chmod +x /usr/local/bin/claude-backup.sh
-
-    # Create restore script (runs as yubo to use gh auth)
-    cat > /usr/local/bin/claude-restore.sh << 'RESTORE_EOF'
-#!/bin/bash
-# Run the actual restore as yubo user (who has gh auth)
-su - yubo -c '
-GIST_NAME="claude-code-backup.tar.gz"
-
-# Find the backup gist
-GIST_ID=$(gh gist list --limit 100 2>/dev/null | grep "$GIST_NAME" | head -1 | awk "{print \$1}")
-if [ -n "$GIST_ID" ]; then
-    echo "[claude-restore] Found backup gist: $GIST_ID"
-    cd /tmp
-    gh gist clone "$GIST_ID" claude-restore-tmp 2>/dev/null
-    if [ -f "/tmp/claude-restore-tmp/$GIST_NAME" ]; then
-        tar -xzf "/tmp/claude-restore-tmp/$GIST_NAME" -C /tmp
-        [ -d /tmp/claude-backup/yubo-claude ] && cp -r /tmp/claude-backup/yubo-claude/* /workspace/.claude-yubo/ 2>/dev/null
-        [ -d /tmp/claude-backup/jason-claude ] && cp -r /tmp/claude-backup/jason-claude/* /workspace/.claude-jason/ 2>/dev/null
-        echo "[claude-restore] Restored Claude Code data"
-    fi
-    rm -rf /tmp/claude-restore-tmp /tmp/claude-backup
-else
-    echo "[claude-restore] No backup gist found"
-fi
-'
-# Fix permissions after restore (run as root)
-chown -R yubo:yubo /workspace/.claude-yubo 2>/dev/null || true
-chown -R jason:jason /workspace/.claude-jason 2>/dev/null || true
-RESTORE_EOF
-    chmod +x /usr/local/bin/claude-restore.sh
-
-    # Restore from gist on startup
-    /usr/local/bin/claude-restore.sh
-
-    # Setup hourly backup cron job (runs as root, script switches to yubo)
-    echo "0 * * * * root /usr/local/bin/claude-backup.sh" > /etc/cron.d/claude-backup
-    chmod 644 /etc/cron.d/claude-backup
-    service cron start 2>/dev/null || true
-    echo "[vjepa2] Claude Code backup cron job installed (hourly)"
 else
     echo "[vjepa2] GitHub CLI not authenticated (set GH_TOKEN to enable)"
 fi
