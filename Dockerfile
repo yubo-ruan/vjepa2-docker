@@ -112,31 +112,20 @@ RUN echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /root/.bashrc
 # Python Packages
 # ============================================
 RUN pip install --no-cache-dir \
-    # Core ML
-    einops \
-    timm \
-    peft \
+    # Core ML (brain-robot requirements)
     transformers \
     accelerate \
     safetensors \
-    bitsandbytes \
-    diffusers \
-    # Scientific computing
-    scipy \
+    gymnasium \
+    huggingface_hub \
+    # Visualization & Logging
     matplotlib \
-    pandas \
-    scikit-learn \
+    wandb \
     # Dev tools
     tqdm \
     rich \
-    tensorboard \
     termcolor \
     psutil \
-    # Utilities
-    huggingface_hub \
-    wandb \
-    omegaconf \
-    hydra-core \
     PyYAML
 
 # ============================================
