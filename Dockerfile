@@ -35,8 +35,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zip \
     net-tools \
     iputils-ping \
+    # OpenGL/OSMesa for headless rendering (robosuite, mujoco)
+    libosmesa6-dev \
+    libgl1-mesa-glx \
+    libglfw3 \
+    libglew-dev \
+    patchelf \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Set environment variables for headless rendering
+ENV MUJOCO_GL=osmesa
+ENV PYOPENGL_PLATFORM=osmesa
 
 # ============================================
 # GitHub CLI
