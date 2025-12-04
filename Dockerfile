@@ -145,30 +145,25 @@ RUN echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /root/.bashrc
     && chown jason:jason /home/jason/.bashrc
 
 # ============================================
-# Python Packages - Split into layers for better caching
+# Python Packages (combined for faster builds)
 # ============================================
-
-# Layer 1: Core ML packages (changes rarely)
 RUN pip install --no-cache-dir \
+    # Core ML
     einops \
     timm \
     peft \
     transformers \
     accelerate \
     safetensors \
-    bitsandbytes
-
-# Layer 2: Video/Image processing
-RUN pip install --no-cache-dir \
+    bitsandbytes \
+    # Video/Image processing
     decord \
     opencv-python-headless \
     pillow \
     imageio \
     imageio-ffmpeg \
-    h5py
-
-# Layer 3: Robotics (robosuite, LIBERO dependencies)
-RUN pip install --no-cache-dir \
+    h5py \
+    # Robotics
     mujoco \
     robosuite \
     egl_probe \
@@ -176,10 +171,8 @@ RUN pip install --no-cache-dir \
     robomimic \
     bddl \
     gym \
-    cloudpickle
-
-# Layer 4: Web/API
-RUN pip install --no-cache-dir \
+    cloudpickle \
+    # Web/API
     fastapi \
     "uvicorn[standard]" \
     websockets \
@@ -187,17 +180,13 @@ RUN pip install --no-cache-dir \
     aiofiles \
     httpx \
     pydantic \
-    pydantic-settings
-
-# Layer 5: Scientific computing
-RUN pip install --no-cache-dir \
+    pydantic-settings \
+    # Scientific computing
     scipy \
     matplotlib \
     pandas \
-    scikit-learn
-
-# Layer 6: Jupyter and development tools
-RUN pip install --no-cache-dir \
+    scikit-learn \
+    # Jupyter and dev tools
     jupyter \
     jupyterlab \
     ipykernel \
@@ -207,10 +196,8 @@ RUN pip install --no-cache-dir \
     tensorboard \
     tensorboardX \
     termcolor \
-    psutil
-
-# Layer 7: Additional utilities
-RUN pip install --no-cache-dir \
+    psutil \
+    # Utilities
     huggingface_hub \
     wandb \
     omegaconf \
@@ -219,12 +206,6 @@ RUN pip install --no-cache-dir \
     easydict \
     thop \
     future
-
-# Layer 8: TensorFlow and data loading (for DROID/RLDS datasets)
-RUN pip install --no-cache-dir \
-    tensorflow \
-    tensorflow-datasets \
-    google-cloud-storage
 
 # ============================================
 # VS Code Server setup
