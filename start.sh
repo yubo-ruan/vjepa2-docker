@@ -7,8 +7,7 @@ set -e
 # This script runs at container start to:
 # 1. Setup SSH keys (not baked into image for security)
 # 2. Start SSH daemon
-# 3. Download model weights if needed
-# 4. Keep container alive
+# 3. Keep container alive
 # ============================================
 
 echo "[vjepa2] Starting container setup..."
@@ -154,32 +153,6 @@ fi
 # --- Workspace Permissions ---
 chown -R dev:dev /workspace 2>/dev/null || true
 echo "[vjepa2] Workspace permissions set"
-
-# --- Clone Brain Robot Repository ---
-BRAIN_ROBOT_DIR="/workspace/brain-robot"
-if [ ! -d "$BRAIN_ROBOT_DIR" ]; then
-    echo "[vjepa2] Cloning brain-robot repository..."
-    git clone https://github.com/yubo-ruan/brain-robot.git "$BRAIN_ROBOT_DIR"
-    cd "$BRAIN_ROBOT_DIR"
-    pip install -e . --quiet 2>/dev/null || true
-    chown -R dev:dev "$BRAIN_ROBOT_DIR"
-    echo "[vjepa2] brain-robot cloned"
-else
-    echo "[vjepa2] brain-robot repository already exists"
-fi
-
-# --- Clone LIBERO Repository ---
-LIBERO_DIR="/workspace/LIBERO"
-if [ ! -d "$LIBERO_DIR" ]; then
-    echo "[vjepa2] Cloning LIBERO repository..."
-    git clone https://github.com/Lifelong-Robot-Learning/LIBERO.git "$LIBERO_DIR"
-    cd "$LIBERO_DIR"
-    pip install -e . --quiet
-    chown -R dev:dev "$LIBERO_DIR"
-    echo "[vjepa2] LIBERO installed in editable mode"
-else
-    echo "[vjepa2] LIBERO repository already exists"
-fi
 
 echo "[vjepa2] Container setup complete!"
 echo "[vjepa2] SSH available on port 22"
