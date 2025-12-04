@@ -83,22 +83,25 @@ fi
 # GH_TOKEN: Optional. If set, auto-login to GitHub CLI for yubo user.
 # Create token at: https://github.com/settings/tokens (needs 'repo' scope)
 if [ -n "$GH_TOKEN" ]; then
-    # Authenticate as yubo user
-    su - yubo -c "echo '$GH_TOKEN' | gh auth login --with-token"
-    # Auto-configure git identity from GitHub account
-    GH_USER=$(su - yubo -c "gh api user -q .login" 2>/dev/null || echo "")
-    GH_EMAIL=$(su - yubo -c "gh api user -q .email" 2>/dev/null || echo "")
-    if [ -n "$GH_USER" ]; then
-        su - yubo -c "git config --global user.name '$GH_USER'"
-        # Use noreply email if no public email set
-        if [ -n "$GH_EMAIL" ] && [ "$GH_EMAIL" != "null" ]; then
-            su - yubo -c "git config --global user.email '$GH_EMAIL'"
+    # Authenticate as yubo user (don't fail if token is invalid)
+    if su - yubo -c "echo '$GH_TOKEN' | gh auth login --with-token" 2>/dev/null; then
+        # Auto-configure git identity from GitHub account
+        GH_USER=$(su - yubo -c "gh api user -q .login" 2>/dev/null || echo "")
+        GH_EMAIL=$(su - yubo -c "gh api user -q .email" 2>/dev/null || echo "")
+        if [ -n "$GH_USER" ]; then
+            su - yubo -c "git config --global user.name '$GH_USER'"
+            # Use noreply email if no public email set
+            if [ -n "$GH_EMAIL" ] && [ "$GH_EMAIL" != "null" ]; then
+                su - yubo -c "git config --global user.email '$GH_EMAIL'"
+            else
+                su - yubo -c "git config --global user.email '$GH_USER@users.noreply.github.com'"
+            fi
+            echo "[vjepa2] GitHub CLI authenticated for yubo (git user: $GH_USER)"
         else
-            su - yubo -c "git config --global user.email '$GH_USER@users.noreply.github.com'"
+            echo "[vjepa2] GitHub CLI authenticated for yubo"
         fi
-        echo "[vjepa2] GitHub CLI authenticated for yubo (git user: $GH_USER)"
     else
-        echo "[vjepa2] GitHub CLI authenticated for yubo"
+        echo "[vjepa2] GitHub CLI auth failed (check GH_TOKEN)"
     fi
 else
     echo "[vjepa2] GitHub CLI not authenticated (set GH_TOKEN to enable)"
