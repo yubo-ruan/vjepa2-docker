@@ -116,6 +116,7 @@ RUN pip install --no-cache-dir \
     robosuite \
     mujoco \
     libero \
+    gymnasium \
     # Perception
     ultralytics \
     open3d \
@@ -126,6 +127,7 @@ RUN pip install --no-cache-dir \
     qwen-vl-utils \
     transformers \
     accelerate \
+    huggingface_hub \
     # Visualization & Logging
     matplotlib \
     wandb \
