@@ -118,6 +118,17 @@ RUN pip install --no-cache-dir \
     safetensors \
     gymnasium \
     huggingface_hub \
+    # Robotics simulation
+    robosuite \
+    mujoco \
+    # Perception
+    ultralytics \
+    open3d \
+    # Qwen VL
+    qwen-vl-utils \
+    # Scientific computing
+    scipy \
+    scikit-image \
     # Visualization & Logging
     matplotlib \
     wandb \
