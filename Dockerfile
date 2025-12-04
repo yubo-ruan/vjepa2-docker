@@ -18,8 +18,6 @@ ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
 # HuggingFace cache (store in workspace for persistence)
 ENV HF_HOME=/workspace/.cache/huggingface
 ENV TORCH_HOME=/workspace/.cache/torch
-# Claude Code config (store in workspace for persistence)
-ENV CLAUDE_CONFIG_DIR=/workspace/.claude
 
 # ============================================
 # System Packages
@@ -129,14 +127,12 @@ RUN echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /root/.bashrc
     && echo 'conda activate base' >> /root/.bashrc \
     && echo 'export HF_HOME=/workspace/.cache/huggingface' >> /root/.bashrc \
     && echo 'export TORCH_HOME=/workspace/.cache/torch' >> /root/.bashrc \
-    && echo 'export CLAUDE_CONFIG_DIR=/workspace/.claude' >> /root/.bashrc \
     # yubo user
     && echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /home/yubo/.bashrc \
     && echo 'source /opt/conda/etc/profile.d/conda.sh' >> /home/yubo/.bashrc \
     && echo 'conda activate base' >> /home/yubo/.bashrc \
     && echo 'export HF_HOME=/workspace/.cache/huggingface' >> /home/yubo/.bashrc \
     && echo 'export TORCH_HOME=/workspace/.cache/torch' >> /home/yubo/.bashrc \
-    && echo 'export CLAUDE_CONFIG_DIR=/workspace/.claude' >> /home/yubo/.bashrc \
     && echo 'cd /workspace' >> /home/yubo/.bashrc \
     && chown yubo:yubo /home/yubo/.bashrc \
     # jason user
@@ -145,7 +141,6 @@ RUN echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /root/.bashrc
     && echo 'conda activate base' >> /home/jason/.bashrc \
     && echo 'export HF_HOME=/workspace/.cache/huggingface' >> /home/jason/.bashrc \
     && echo 'export TORCH_HOME=/workspace/.cache/torch' >> /home/jason/.bashrc \
-    && echo 'export CLAUDE_CONFIG_DIR=/workspace/.claude' >> /home/jason/.bashrc \
     && echo 'cd /workspace' >> /home/jason/.bashrc \
     && chown jason:jason /home/jason/.bashrc
 
@@ -241,9 +236,14 @@ RUN mkdir -p /workspace/.vscode \
 # ============================================
 # Workspace Setup
 # ============================================
+# Note: /workspace/.claude-yubo and /workspace/.claude-jason already exist in workspace volume
 RUN mkdir -p /workspace/.cache/huggingface \
     && mkdir -p /workspace/.cache/torch \
     && mkdir -p /workspace/models \
+    && ln -s /workspace/.claude-yubo /home/yubo/.claude \
+    && ln -s /workspace/.claude-jason /home/jason/.claude \
+    && chown -h yubo:yubo /home/yubo/.claude \
+    && chown -h jason:jason /home/jason/.claude \
     && chown -R yubo:yubo /workspace
 
 # ============================================
