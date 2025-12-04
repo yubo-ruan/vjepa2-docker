@@ -23,14 +23,9 @@ ENV TORCH_HOME=/workspace/.cache/torch
 # System Packages
 # ============================================
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    # SSH
     openssh-server \
-    # Development
     git \
     git-lfs \
-    build-essential \
-    cmake \
-    # Utilities
     wget \
     curl \
     vim \
@@ -38,39 +33,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tmux \
     unzip \
     zip \
-    # For OpenCV
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    # For video processing
-    ffmpeg \
-    libavcodec-dev \
-    libavformat-dev \
-    libswscale-dev \
-    # Networking tools
     net-tools \
     iputils-ping \
-    # For EGL/headless rendering (DROID)
-    libegl1-mesa-dev \
-    libgl1-mesa-dev \
-    # Clean up
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# ============================================
-# Node.js 20 LTS (for frontend development)
-# ============================================
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates gnupg \
-    && mkdir -p /etc/apt/keyrings \
-    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends nodejs \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
 
 # ============================================
 # GitHub CLI
@@ -143,7 +109,7 @@ RUN echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /root/.bashrc
     && chown jason:jason /home/jason/.bashrc
 
 # ============================================
-# Python Packages (combined for faster builds)
+# Python Packages
 # ============================================
 RUN pip install --no-cache-dir \
     # Core ML
@@ -154,45 +120,16 @@ RUN pip install --no-cache-dir \
     accelerate \
     safetensors \
     bitsandbytes \
-    # Video/Image processing
-    decord \
-    opencv-python-headless \
-    pillow \
-    imageio \
-    imageio-ffmpeg \
-    h5py \
-    # Robotics
-    mujoco \
-    robosuite \
-    egl_probe \
     diffusers \
-    robomimic \
-    bddl \
-    gym \
-    cloudpickle \
-    # Web/API
-    fastapi \
-    "uvicorn[standard]" \
-    websockets \
-    python-multipart \
-    aiofiles \
-    httpx \
-    pydantic \
-    pydantic-settings \
     # Scientific computing
     scipy \
     matplotlib \
     pandas \
     scikit-learn \
-    # Jupyter and dev tools
-    jupyter \
-    jupyterlab \
-    ipykernel \
-    ipywidgets \
+    # Dev tools
     tqdm \
     rich \
     tensorboard \
-    tensorboardX \
     termcolor \
     psutil \
     # Utilities
@@ -200,10 +137,7 @@ RUN pip install --no-cache-dir \
     wandb \
     omegaconf \
     hydra-core \
-    PyYAML \
-    easydict \
-    thop \
-    future
+    PyYAML
 
 # ============================================
 # VS Code Server setup
