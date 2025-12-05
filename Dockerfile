@@ -141,7 +141,7 @@ RUN pip install --no-cache-dir \
     scikit-image \
     # VLM
     qwen-vl-utils \
-    transformers \
+    'transformers==4.40.0' \
     accelerate \
     huggingface_hub \
     # Visualization & Logging
