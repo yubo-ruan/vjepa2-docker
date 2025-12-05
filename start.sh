@@ -70,11 +70,16 @@ fi
 echo "[vjepa2] SSH daemon started"
 
 # --- Weights & Biases Authentication ---
-# WANDB_API_KEY: Optional. If set, auto-login to wandb.
+# WANDB_API_KEY: Optional. If set, auto-login to wandb for all users.
 # Get your key at: https://wandb.ai/authorize
 if [ -n "$WANDB_API_KEY" ]; then
-    wandb login "$WANDB_API_KEY" 2>/dev/null
-    echo "[vjepa2] Weights & Biases authenticated"
+    # Login for root
+    wandb login "$WANDB_API_KEY" 2>/dev/null || true
+    # Login for yubo user
+    su - yubo -c "wandb login '$WANDB_API_KEY'" 2>/dev/null || true
+    # Login for jason user
+    su - jason -c "wandb login '$WANDB_API_KEY'" 2>/dev/null || true
+    echo "[vjepa2] Weights & Biases authenticated (all users)"
 else
     echo "[vjepa2] Weights & Biases not authenticated (set WANDB_API_KEY to enable)"
 fi
