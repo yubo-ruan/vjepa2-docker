@@ -171,7 +171,10 @@ RUN mkdir -p /workspace/.cache/huggingface \
     && mkdir -p /home/jason/.claude \
     && chown -R yubo:yubo /home/yubo/.claude \
     && chown -R jason:jason /home/jason/.claude \
-    && chown -R yubo:yubo /workspace
+    && chown -R yubo:yubo /workspace \
+    # Allow users to pip install to conda site-packages
+    && chmod -R g+w /opt/conda/lib/python3.10/site-packages \
+    && chgrp -R sudo /opt/conda/lib/python3.10/site-packages
 
 # ============================================
 # Final Configuration
