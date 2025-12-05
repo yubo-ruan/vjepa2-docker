@@ -1,4 +1,4 @@
-FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-devel
 
 LABEL maintainer="yubo"
 LABEL description="V-JEPA 2 development environment with SSH support"
@@ -141,7 +141,7 @@ RUN pip install --no-cache-dir \
     scikit-image \
     # VLM
     qwen-vl-utils \
-    'transformers==4.40.0' \
+    transformers \
     accelerate \
     huggingface_hub \
     # Visualization & Logging
