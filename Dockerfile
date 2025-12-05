@@ -106,6 +106,7 @@ RUN echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /root/.bashrc
     && echo 'export HF_HOME=/workspace/.cache/huggingface' >> /root/.bashrc \
     && echo 'export TORCH_HOME=/workspace/.cache/torch' >> /root/.bashrc \
     # yubo user
+    && echo 'export PIP_USER=0' >> /home/yubo/.bashrc \
     && echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /home/yubo/.bashrc \
     && echo 'source /opt/conda/etc/profile.d/conda.sh' >> /home/yubo/.bashrc \
     && echo 'conda activate base' >> /home/yubo/.bashrc \
@@ -114,6 +115,7 @@ RUN echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /root/.bashrc
     && echo 'cd /workspace' >> /home/yubo/.bashrc \
     && chown yubo:yubo /home/yubo/.bashrc \
     # jason user
+    && echo 'export PIP_USER=0' >> /home/jason/.bashrc \
     && echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /home/jason/.bashrc \
     && echo 'source /opt/conda/etc/profile.d/conda.sh' >> /home/jason/.bashrc \
     && echo 'conda activate base' >> /home/jason/.bashrc \
