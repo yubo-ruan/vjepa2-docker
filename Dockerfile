@@ -35,7 +35,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zip \
     net-tools \
     iputils-ping \
-    # OpenGL/OSMesa for headless rendering (robosuite, mujoco)
+    # OpenGL/EGL for headless GPU rendering (robosuite, mujoco)
+    libegl1 \
+    libgl1 \
     libosmesa6-dev \
     libgl1-mesa-glx \
     libglfw3 \
