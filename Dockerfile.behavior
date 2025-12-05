@@ -1,0 +1,114 @@
+# BEHAVIOR-1K / OmniGibson Docker Image
+# Based on official StanfordVL OmniGibson image from Docker Hub
+# https://hub.docker.com/r/stanfordvl/omnigibson
+
+FROM stanfordvl/omnigibson:latest
+
+LABEL maintainer="yubo"
+LABEL description="BEHAVIOR-1K / OmniGibson environment with SSH support"
+
+# ============================================
+# Environment Variables
+# ============================================
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV ACCEPT_EULA=Y
+
+# ============================================
+# System Packages
+# ============================================
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openssh-server \
+    git \
+    git-lfs \
+    wget \
+    curl \
+    vim \
+    htop \
+    tmux \
+    unzip \
+    zip \
+    net-tools \
+    iputils-ping \
+    sudo \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# ============================================
+# GitHub CLI
+# ============================================
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends gh \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# ============================================
+# SSH Configuration
+# ============================================
+RUN mkdir -p /run/sshd \
+    && sed -i "s/#PermitRootLogin.*/PermitRootLogin yes/" /etc/ssh/sshd_config \
+    && sed -i "s/#PubkeyAuthentication.*/PubkeyAuthentication yes/" /etc/ssh/sshd_config \
+    && sed -i "s/#PasswordAuthentication.*/PasswordAuthentication yes/" /etc/ssh/sshd_config
+
+# ============================================
+# Create yubo user with sudo access
+# ============================================
+RUN useradd -m -s /bin/bash -G sudo yubo \
+    && echo "yubo:yubo" | chpasswd \
+    && echo "yubo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
+    && mkdir -p /home/yubo/.ssh \
+    && chmod 700 /home/yubo/.ssh
+
+# ============================================
+# Create jason user with sudo access
+# ============================================
+RUN useradd -m -s /bin/bash -G sudo jason \
+    && echo "jason:jason" | chpasswd \
+    && echo "jason ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
+    && mkdir -p /home/jason/.ssh \
+    && chmod 700 /home/jason/.ssh
+
+# ============================================
+# Git Configuration
+# ============================================
+RUN git config --system user.name "yubo-ruan" \
+    && git config --system user.email "yubo@8dcapital.com" \
+    && git config --system init.defaultBranch main
+
+# ============================================
+# Additional Python Dependencies
+# ============================================
+RUN pip install --no-cache-dir \
+    huggingface_hub \
+    wandb \
+    tqdm \
+    rich \
+    PyYAML
+
+# ============================================
+# Workspace Setup
+# ============================================
+RUN mkdir -p /workspace \
+    && mkdir -p /home/yubo/.claude \
+    && mkdir -p /home/jason/.claude \
+    && chown -R yubo:yubo /home/yubo/.claude \
+    && chown -R jason:jason /home/jason/.claude \
+    && chown -R yubo:yubo /workspace
+
+WORKDIR /workspace
+
+# Copy startup script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Expose SSH port
+EXPOSE 22
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD pgrep sshd > /dev/null || exit 1
+
+ENTRYPOINT ["/start.sh"]
