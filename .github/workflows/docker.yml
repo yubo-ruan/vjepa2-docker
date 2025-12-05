@@ -43,8 +43,8 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            yuboruan/vjepa2:latest
-            yuboruan/vjepa2:main
+            yuboruan123/vjepa2:latest
+            yuboruan123/vjepa2:main
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -79,6 +79,6 @@ jobs:
           file: ./Dockerfile.behavior
           push: true
           tags: |
-            yuboruan/vjepa2:behavior
+            yuboruan123/vjepa2:behavior
           cache-from: type=gha
           cache-to: type=gha,mode=max
