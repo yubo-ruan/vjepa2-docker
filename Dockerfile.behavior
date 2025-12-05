@@ -13,6 +13,11 @@ LABEL description="BEHAVIOR-1K / OmniGibson environment with SSH support"
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ENV ACCEPT_EULA=Y
+# OmniGibson EULA acceptance
+ENV OMNIGIBSON_ACCEPT_EULA=yes
+# Store assets in persistent workspace volume
+ENV OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets
+ENV GIBSON_ASSETS_PATH=/workspace/omnigibson_assets
 
 # ============================================
 # System Packages
@@ -92,6 +97,7 @@ RUN pip install --no-cache-dir \
 # Workspace Setup
 # ============================================
 RUN mkdir -p /workspace \
+    && mkdir -p /workspace/omnigibson_assets \
     && mkdir -p /home/yubo/.claude \
     && mkdir -p /home/jason/.claude \
     && chown -R yubo:yubo /home/yubo/.claude \
@@ -100,9 +106,10 @@ RUN mkdir -p /workspace \
 
 WORKDIR /workspace
 
-# Copy startup script
+# Copy scripts
 COPY start.sh /start.sh
-RUN chmod +x /start.sh
+COPY setup_omnigibson.sh /workspace/setup_omnigibson.sh
+RUN chmod +x /start.sh /workspace/setup_omnigibson.sh
 
 # Expose SSH port
 EXPOSE 22

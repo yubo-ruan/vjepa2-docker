@@ -7,6 +7,7 @@ on:
       - 'Dockerfile'
       - 'Dockerfile.behavior'
       - 'start.sh'
+      - 'setup_omnigibson.sh'
       - '.github/workflows/docker.yml'
   workflow_dispatch:  # Allow manual trigger
 
