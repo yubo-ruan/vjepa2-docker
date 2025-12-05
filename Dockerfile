@@ -41,12 +41,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libglfw3 \
     libglew-dev \
     patchelf \
+    # GLib threading library (required by OpenCV/cv2)
+    libglib2.0-0 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Set environment variables for headless rendering
-ENV MUJOCO_GL=osmesa
-ENV PYOPENGL_PLATFORM=osmesa
+# Set environment variables for headless GPU rendering (EGL for NVIDIA)
+ENV MUJOCO_GL=egl
+ENV PYOPENGL_PLATFORM=egl
 
 # ============================================
 # GitHub CLI
@@ -89,8 +91,8 @@ RUN useradd -m -s /bin/bash -G sudo jason \
 # ============================================
 # Git Configuration (for commits inside container)
 # ============================================
-RUN git config --system user.name "dev" \
-    && git config --system user.email "dev@vjepa2-container" \
+RUN git config --system user.name "yubo-ruan" \
+    && git config --system user.email "yubo@8dcapital.com" \
     && git config --system init.defaultBranch main
 
 # ============================================
@@ -122,6 +124,8 @@ RUN echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /root/.bashrc
 # Python Packages
 # ============================================
 RUN pip install --no-cache-dir \
+    # Pin NumPy to 1.x for compatibility with robosuite/libero
+    'numpy<2' \
     # Robotics
     robosuite \
     mujoco \
@@ -156,14 +160,13 @@ RUN mkdir -p /workspace/.vscode \
 # ============================================
 # Workspace Setup
 # ============================================
-# Note: /workspace/.claude-yubo and /workspace/.claude-jason already exist in workspace volume
 RUN mkdir -p /workspace/.cache/huggingface \
     && mkdir -p /workspace/.cache/torch \
     && mkdir -p /workspace/models \
-    && ln -s /workspace/.claude-yubo /home/yubo/.claude \
-    && ln -s /workspace/.claude-jason /home/jason/.claude \
-    && chown -h yubo:yubo /home/yubo/.claude \
-    && chown -h jason:jason /home/jason/.claude \
+    && mkdir -p /home/yubo/.claude \
+    && mkdir -p /home/jason/.claude \
+    && chown -R yubo:yubo /home/yubo/.claude \
+    && chown -R jason:jason /home/jason/.claude \
     && chown -R yubo:yubo /workspace
 
 # ============================================
@@ -175,8 +178,8 @@ WORKDIR /workspace
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-# Expose ports: SSH, Next.js, FastAPI, Jupyter
-EXPOSE 22 3000 8000 8888
+# Expose SSH port
+EXPOSE 22
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
