@@ -10,10 +10,6 @@
 
 set -e
 
-# Activate micromamba omnigibson environment
-eval "$(micromamba shell hook --shell bash)"
-micromamba activate omnigibson
-
 echo "============================================"
 echo "OmniGibson / BEHAVIOR-1K Asset Setup"
 echo "============================================"
