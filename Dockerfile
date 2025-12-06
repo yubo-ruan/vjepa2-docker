@@ -162,16 +162,21 @@ RUN mkdir -p /workspace/.vscode \
     && echo '{"recommendations": ["anthropic.claude-code"]}' > /workspace/.vscode/extensions.json
 
 # ============================================
-# Workspace Setup
+# Workspace Setup (symlink ~/.claude to /workspace/.claude for persistence)
 # ============================================
 RUN mkdir -p /workspace/.cache/huggingface \
     && mkdir -p /workspace/.cache/torch \
     && mkdir -p /workspace/models \
-    && mkdir -p /home/yubo/.claude \
-    && mkdir -p /home/jason/.claude \
-    && chown -R yubo:yubo /home/yubo/.claude \
-    && chown -R jason:jason /home/jason/.claude \
+    && mkdir -p /workspace/.claude \
     && chown -R yubo:yubo /workspace \
+    # Symlink ~/.claude -> /workspace/.claude for yubo
+    && ln -sf /workspace/.claude /home/yubo/.claude \
+    && chown -h yubo:yubo /home/yubo/.claude \
+    # Symlink ~/.claude -> /workspace/.claude for jason
+    && ln -sf /workspace/.claude /home/jason/.claude \
+    && chown -h jason:jason /home/jason/.claude \
+    # Symlink ~/.claude -> /workspace/.claude for root
+    && ln -sf /workspace/.claude /root/.claude \
     # Allow users to pip install to conda site-packages
     && chmod -R g+w /opt/conda/lib/python3.10/site-packages \
     && chgrp -R sudo /opt/conda/lib/python3.10/site-packages

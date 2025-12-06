@@ -115,15 +115,20 @@ RUN /isaac-sim/python.sh -m pip install --no-cache-dir \
     PyYAML
 
 # ============================================
-# Workspace Setup
+# Workspace Setup (symlink ~/.claude to /workspace/.claude for persistence)
 # ============================================
 RUN mkdir -p /workspace \
     && mkdir -p /workspace/omnigibson_assets \
-    && mkdir -p /home/yubo/.claude \
-    && mkdir -p /home/jason/.claude \
-    && chown -R yubo:yubo /home/yubo/.claude \
-    && chown -R jason:jason /home/jason/.claude \
-    && chown -R yubo:yubo /workspace
+    && mkdir -p /workspace/.claude \
+    && chown -R yubo:yubo /workspace \
+    # Symlink ~/.claude -> /workspace/.claude for yubo
+    && ln -sf /workspace/.claude /home/yubo/.claude \
+    && chown -h yubo:yubo /home/yubo/.claude \
+    # Symlink ~/.claude -> /workspace/.claude for jason
+    && ln -sf /workspace/.claude /home/jason/.claude \
+    && chown -h jason:jason /home/jason/.claude \
+    # Symlink ~/.claude -> /workspace/.claude for root
+    && ln -sf /workspace/.claude /root/.claude
 
 WORKDIR /workspace
 
