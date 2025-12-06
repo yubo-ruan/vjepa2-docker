@@ -51,13 +51,27 @@ jobs:
   build-behavior:
     runs-on: ubuntu-latest
     steps:
-      - name: Free disk space
+      - name: Free disk space (aggressive)
         run: |
+          # Remove large pre-installed software
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /opt/hostedtoolcache/go
+          sudo rm -rf /opt/hostedtoolcache/node
+          sudo rm -rf /opt/hostedtoolcache/Python
+          sudo rm -rf /opt/hostedtoolcache/Ruby
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /usr/share/swift
+          sudo rm -rf /usr/local/.ghcup
+          # Remove apt cache and unnecessary packages
+          sudo apt-get clean
+          sudo apt-get autoremove -y
+          # Remove docker images
           sudo docker image prune --all --force
+          sudo docker system prune --all --force --volumes
+          # Show free space
           df -h
 
       - name: Checkout
