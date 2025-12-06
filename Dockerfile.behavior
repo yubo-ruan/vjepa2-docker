@@ -92,18 +92,32 @@ RUN echo '# OmniGibson environment (micromamba)' >> /home/yubo/.bashrc \
 # ============================================
 # Install Missing Python Dependencies (use micromamba omnigibson env)
 # ============================================
-# PyTorch is critical - OmniGibson imports fail without it
-# Also fix numpy version and install other missing deps
+# The base image has an incomplete environment - install all missing deps
+# Critical: torch, scipy, opencv, networkx, pyyaml, matplotlib, click
+# Also fix numpy version (needs <2.0.0)
 RUN micromamba run -n omnigibson pip install --no-cache-dir \
+    # Core ML
     torch \
     'numpy<2.0.0,>=1.23.5' \
+    # OmniGibson dependencies
     scipy \
     opencv-python \
+    networkx \
+    pyyaml \
+    matplotlib \
+    click \
+    # Transitive deps that may be missing
+    six \
+    cffi \
+    typing-extensions \
+    pillow \
+    attrs \
+    packaging \
+    # Our additions
     huggingface_hub \
     wandb \
     tqdm \
-    rich \
-    PyYAML
+    rich
 
 # ============================================
 # Workspace Setup (symlink ~/.claude to /workspace/.claude for persistence)
