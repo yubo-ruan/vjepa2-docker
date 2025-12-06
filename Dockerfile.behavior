@@ -102,13 +102,19 @@ RUN echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /root/.b
     && chown yubo:yubo /home/yubo/.bashrc
 
 # ============================================
-# Install OmniGibson + BDDL + dependencies
+# Install OmniGibson from GitHub (v3.7.1 for Isaac Sim 4.5 support)
+# ============================================
+# PyPI omnigibson==1.1.1 only supports Isaac Sim 4.0/4.1
+# Must use GitHub v3.7.1 which has KIT_FILES for Isaac Sim 4.5
+RUN git clone -b v3.7.1 --depth 1 https://github.com/StanfordVL/OmniGibson.git /opt/omnigibson \
+    && cd /opt/omnigibson \
+    && /isaac-sim/python.sh -m pip install --no-cache-dir -e .
+
+# ============================================
+# Install BDDL + other dependencies
 # ============================================
 # Isaac Sim uses its own Python at /isaac-sim/python.sh
-# We need to use that for pip installs
 RUN /isaac-sim/python.sh -m pip install --no-cache-dir \
-    # OmniGibson / BEHAVIOR-1K
-    omnigibson \
     bddl \
     # Core dependencies (numpy pinned for robosuite/libero compatibility)
     'numpy<2' \
