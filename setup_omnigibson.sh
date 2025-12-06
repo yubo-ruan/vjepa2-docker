@@ -28,7 +28,7 @@ fi
 echo "[1/2] Downloading OmniGibson core assets (~25GB)..."
 echo "      This may take 20-30 minutes depending on connection speed."
 echo ""
-python -m omnigibson.utils.asset_download
+/isaac-sim/python.sh -m omnigibson.utils.asset_download
 
 echo ""
 echo "[INFO] Core assets downloaded successfully!"
@@ -37,7 +37,7 @@ echo ""
 echo "[2/2] Downloading BEHAVIOR-1K dataset (~50GB)..."
 echo "      This may take 30-60 minutes."
 echo ""
-python -m omnigibson.utils.download_datasets
+/isaac-sim/python.sh -m omnigibson.utils.download_datasets
 
 echo ""
 echo "[INFO] BEHAVIOR-1K dataset downloaded successfully!"
@@ -48,5 +48,6 @@ echo "Setup complete!"
 echo "============================================"
 echo ""
 echo "You can now run OmniGibson simulations."
-echo "Example: python -m omnigibson.examples.robots.robot_control_example"
+echo "Example: /isaac-sim/python.sh -m omnigibson.examples.robots.robot_control_example"
+echo "(Or just 'python' if using the shell alias)"
 echo ""

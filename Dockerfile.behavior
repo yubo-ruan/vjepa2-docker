@@ -79,22 +79,27 @@ RUN git config --system user.name "yubo-ruan" \
 # ============================================
 # Shell Configuration (root + yubo)
 # ============================================
+# Isaac Sim Python is at /isaac-sim/python.sh - create aliases for convenience
 RUN echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /root/.bashrc \
+    && echo 'alias python="/isaac-sim/python.sh"' >> /root/.bashrc \
+    && echo 'alias pip="/isaac-sim/python.sh -m pip"' >> /root/.bashrc \
     && echo 'cd /workspace' >> /root/.bashrc \
     # yubo user
     && echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /home/yubo/.bashrc \
+    && echo 'alias python="/isaac-sim/python.sh"' >> /home/yubo/.bashrc \
+    && echo 'alias pip="/isaac-sim/python.sh -m pip"' >> /home/yubo/.bashrc \
     && echo 'cd /workspace' >> /home/yubo/.bashrc \
     && chown yubo:yubo /home/yubo/.bashrc
 
 # ============================================
 # Install OmniGibson + BDDL + dependencies
 # ============================================
-RUN pip install --no-cache-dir \
+# Isaac Sim uses its own Python at /isaac-sim/python.sh
+# We need to use that for pip installs
+RUN /isaac-sim/python.sh -m pip install --no-cache-dir \
     omnigibson \
     bddl \
-    # Pin NumPy for compatibility
     'numpy<2' \
-    # Our additions
     huggingface_hub \
     wandb \
     tqdm \
