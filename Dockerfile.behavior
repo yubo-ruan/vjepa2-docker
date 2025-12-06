@@ -68,15 +68,6 @@ RUN useradd -m -s /bin/bash -G sudo yubo \
     && chmod 700 /home/yubo/.ssh
 
 # ============================================
-# Create jason user with sudo access
-# ============================================
-RUN useradd -m -s /bin/bash -G sudo jason \
-    && echo "jason:jason" | chpasswd \
-    && echo "jason ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
-    && mkdir -p /home/jason/.ssh \
-    && chmod 700 /home/jason/.ssh
-
-# ============================================
 # Git Configuration
 # ============================================
 RUN git config --system user.name "yubo-ruan" \
@@ -91,12 +82,6 @@ RUN echo '# Isaac Sim / OmniGibson environment' >> /home/yubo/.bashrc \
     && echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /home/yubo/.bashrc \
     && echo 'cd /workspace' >> /home/yubo/.bashrc \
     && chown yubo:yubo /home/yubo/.bashrc \
-    # jason user
-    && echo '# Isaac Sim / OmniGibson environment' >> /home/jason/.bashrc \
-    && echo 'source /isaac-sim/setup_conda.sh 2>/dev/null || true' >> /home/jason/.bashrc \
-    && echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /home/jason/.bashrc \
-    && echo 'cd /workspace' >> /home/jason/.bashrc \
-    && chown jason:jason /home/jason/.bashrc \
     # root user
     && echo '# Isaac Sim / OmniGibson environment' >> /root/.bashrc \
     && echo 'source /isaac-sim/setup_conda.sh 2>/dev/null || true' >> /root/.bashrc \
@@ -124,9 +109,6 @@ RUN mkdir -p /workspace \
     # Symlink ~/.claude -> /workspace/.claude for yubo
     && ln -sf /workspace/.claude /home/yubo/.claude \
     && chown -h yubo:yubo /home/yubo/.claude \
-    # Symlink ~/.claude -> /workspace/.claude for jason
-    && ln -sf /workspace/.claude /home/jason/.claude \
-    && chown -h jason:jason /home/jason/.claude \
     # Symlink ~/.claude -> /workspace/.claude for root
     && ln -sf /workspace/.claude /root/.claude
 
