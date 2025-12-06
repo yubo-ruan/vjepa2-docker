@@ -37,26 +37,28 @@ chown -R yubo:yubo /home/yubo/.ssh
 chmod 700 /home/yubo/.ssh
 chmod 600 /home/yubo/.ssh/authorized_keys
 
-# Setup SSH for jason user
-mkdir -p /home/jason/.ssh
-if [ -n "$JASON_SSH_PUBLIC_KEY" ]; then
-    echo "$JASON_SSH_PUBLIC_KEY" > /home/jason/.ssh/authorized_keys
-    echo "[vjepa2] Jason SSH key configured"
-else
-    # No key provided, leave authorized_keys empty
-    touch /home/jason/.ssh/authorized_keys
-    echo "[vjepa2] Jason SSH key not provided (set JASON_SSH_PUBLIC_KEY to enable)"
+# Setup SSH for jason user (if user exists)
+if id jason &>/dev/null; then
+    mkdir -p /home/jason/.ssh
+    if [ -n "$JASON_SSH_PUBLIC_KEY" ]; then
+        echo "$JASON_SSH_PUBLIC_KEY" > /home/jason/.ssh/authorized_keys
+        echo "[vjepa2] Jason SSH key configured"
+    else
+        # No key provided, leave authorized_keys empty
+        touch /home/jason/.ssh/authorized_keys
+        echo "[vjepa2] Jason SSH key not provided (set JASON_SSH_PUBLIC_KEY to enable)"
+    fi
+    chown -R jason:jason /home/jason/.ssh
+    chmod 700 /home/jason/.ssh
+    chmod 600 /home/jason/.ssh/authorized_keys
 fi
-chown -R jason:jason /home/jason/.ssh
-chmod 700 /home/jason/.ssh
-chmod 600 /home/jason/.ssh/authorized_keys
 
 # --- Password Configuration ---
 # USER_PASSWORD: Optional. If set, enables password auth with this password.
 # If not set, password auth is disabled (SSH key only - more secure).
 if [ -n "$USER_PASSWORD" ]; then
     echo "yubo:$USER_PASSWORD" | chpasswd
-    echo "jason:$USER_PASSWORD" | chpasswd
+    id jason &>/dev/null && echo "jason:$USER_PASSWORD" | chpasswd
     echo "root:$USER_PASSWORD" | chpasswd
     echo "[vjepa2] Password auth enabled (custom password set)"
 else
@@ -77,8 +79,8 @@ if [ -n "$WANDB_API_KEY" ]; then
     wandb login "$WANDB_API_KEY" 2>/dev/null || true
     # Login for yubo user
     su - yubo -c "wandb login '$WANDB_API_KEY'" 2>/dev/null || true
-    # Login for jason user
-    su - jason -c "wandb login '$WANDB_API_KEY'" 2>/dev/null || true
+    # Login for jason user (if exists)
+    id jason &>/dev/null && su - jason -c "wandb login '$WANDB_API_KEY'" 2>/dev/null || true
     echo "[vjepa2] Weights & Biases authenticated (all users)"
 else
     echo "[vjepa2] Weights & Biases not authenticated (set WANDB_API_KEY to enable)"
@@ -118,7 +120,11 @@ echo "[vjepa2] Workspace permissions set"
 
 echo "[vjepa2] Container setup complete!"
 echo "[vjepa2] SSH available on port 22"
-echo "[vjepa2] You can connect as 'root', 'yubo', or 'jason' user"
+if id jason &>/dev/null; then
+    echo "[vjepa2] You can connect as 'root', 'yubo', or 'jason' user"
+else
+    echo "[vjepa2] You can connect as 'root' or 'yubo' user"
+fi
 
 # Keep container alive
 exec tail -f /dev/null
