@@ -107,9 +107,23 @@ RUN echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /root/.b
 # Isaac Sim uses its own Python at /isaac-sim/python.sh
 # We need to use that for pip installs
 RUN /isaac-sim/python.sh -m pip install --no-cache-dir \
+    # OmniGibson / BEHAVIOR-1K
     omnigibson \
     bddl \
+    # Core dependencies (numpy pinned for robosuite/libero compatibility)
     'numpy<2' \
+    # Vision model
+    transformers \
+    timm \
+    # Data loading
+    h5py \
+    # Image processing
+    opencv-python \
+    Pillow \
+    # VLM grounding (Qwen2.5-VL)
+    qwen-vl-utils \
+    accelerate \
+    # Training utilities
     huggingface_hub \
     wandb \
     tqdm \
