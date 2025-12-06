@@ -102,15 +102,15 @@ RUN echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /root/.b
     && chown yubo:yubo /home/yubo/.bashrc
 
 # ============================================
-# Install OmniGibson from GitHub (og-develop for Isaac Sim container support)
+# Install OmniGibson from GitHub (main branch)
 # ============================================
 # PyPI omnigibson==1.1.1 only supports Isaac Sim 4.0/4.1
-# og-develop branch has better support for container-based Isaac Sim
+# Main branch should have Isaac Sim 4.5 support
 # ISAAC_SIM_PATH is required for OmniGibson to find Isaac Sim
 ENV ISAAC_SIM_PATH=/isaac-sim
 ENV ISAACSIM_PATH=/isaac-sim
 
-RUN git clone -b og-develop --depth 1 https://github.com/StanfordVL/OmniGibson.git /opt/omnigibson \
+RUN git clone --depth 1 https://github.com/StanfordVL/OmniGibson.git /opt/omnigibson \
     && cd /opt/omnigibson \
     && /isaac-sim/python.sh -m pip install --no-cache-dir -e .
 
