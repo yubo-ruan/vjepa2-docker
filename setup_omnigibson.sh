@@ -11,6 +11,11 @@
 
 set -e
 
+# Source Isaac Sim environment if not already done
+if [ -z "$ISAAC_SIM_PATH" ]; then
+    source /isaac-sim/setup_conda.sh 2>/dev/null || true
+fi
+
 echo "============================================"
 echo "OmniGibson / BEHAVIOR-1K Asset Setup"
 echo "============================================"

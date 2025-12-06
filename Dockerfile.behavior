@@ -84,9 +84,28 @@ RUN git config --system user.name "yubo-ruan" \
     && git config --system init.defaultBranch main
 
 # ============================================
-# Additional Python Dependencies
+# Shell Configuration (source Isaac Sim environment)
 # ============================================
-RUN pip install --no-cache-dir \
+RUN echo '# Isaac Sim / OmniGibson environment' >> /home/yubo/.bashrc \
+    && echo 'source /isaac-sim/setup_conda.sh 2>/dev/null || true' >> /home/yubo/.bashrc \
+    && echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /home/yubo/.bashrc \
+    && echo 'cd /workspace' >> /home/yubo/.bashrc \
+    && chown yubo:yubo /home/yubo/.bashrc \
+    # jason user
+    && echo '# Isaac Sim / OmniGibson environment' >> /home/jason/.bashrc \
+    && echo 'source /isaac-sim/setup_conda.sh 2>/dev/null || true' >> /home/jason/.bashrc \
+    && echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /home/jason/.bashrc \
+    && echo 'cd /workspace' >> /home/jason/.bashrc \
+    && chown jason:jason /home/jason/.bashrc \
+    # root user
+    && echo '# Isaac Sim / OmniGibson environment' >> /root/.bashrc \
+    && echo 'source /isaac-sim/setup_conda.sh 2>/dev/null || true' >> /root/.bashrc \
+    && echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /root/.bashrc
+
+# ============================================
+# Additional Python Dependencies (use Isaac Sim's pip)
+# ============================================
+RUN /isaac-sim/python.sh -m pip install --no-cache-dir \
     huggingface_hub \
     wandb \
     tqdm \
