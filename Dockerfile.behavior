@@ -134,10 +134,10 @@ RUN mkdir -p /workspace \
 
 WORKDIR /workspace
 
-# Copy scripts
+# Copy scripts (setup script to /usr/local/bin so it survives volume mounts)
 COPY start.sh /start.sh
-COPY setup_omnigibson.sh /workspace/setup_omnigibson.sh
-RUN chmod +x /start.sh /workspace/setup_omnigibson.sh
+COPY setup_omnigibson.sh /usr/local/bin/setup_omnigibson.sh
+RUN chmod +x /start.sh /usr/local/bin/setup_omnigibson.sh
 
 # Expose SSH port
 EXPOSE 22

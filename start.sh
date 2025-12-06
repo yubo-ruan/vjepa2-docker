@@ -94,9 +94,13 @@ else
     echo "[vjepa2] GitHub CLI not authenticated (set GH_TOKEN to enable)"
 fi
 
-# --- Workspace Permissions ---
+# --- Workspace Setup ---
+# Create directories that may be missing due to volume mounts
+mkdir -p /workspace/.claude 2>/dev/null || true
+mkdir -p /workspace/.cache/huggingface 2>/dev/null || true
+mkdir -p /workspace/.cache/torch 2>/dev/null || true
 chown -R yubo:yubo /workspace 2>/dev/null || true
-echo "[vjepa2] Workspace permissions set"
+echo "[vjepa2] Workspace initialized"
 
 echo "[vjepa2] Container setup complete!"
 echo "[vjepa2] SSH available on port 22"
