@@ -75,24 +75,30 @@ RUN git config --system user.name "yubo-ruan" \
     && git config --system init.defaultBranch main
 
 # ============================================
-# Shell Configuration (source Isaac Sim environment)
+# Shell Configuration (activate micromamba omnigibson environment)
 # ============================================
-RUN echo '# Isaac Sim / OmniGibson environment' >> /home/yubo/.bashrc \
-    && echo 'source /isaac-sim/setup_conda.sh 2>/dev/null || true' >> /home/yubo/.bashrc \
+RUN echo '# OmniGibson environment (micromamba)' >> /home/yubo/.bashrc \
+    && echo 'eval "$(micromamba shell hook --shell bash)"' >> /home/yubo/.bashrc \
+    && echo 'micromamba activate omnigibson' >> /home/yubo/.bashrc \
     && echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /home/yubo/.bashrc \
     && echo 'cd /workspace' >> /home/yubo/.bashrc \
     && chown yubo:yubo /home/yubo/.bashrc \
     # root user
-    && echo '# Isaac Sim / OmniGibson environment' >> /root/.bashrc \
-    && echo 'source /isaac-sim/setup_conda.sh 2>/dev/null || true' >> /root/.bashrc \
+    && echo '# OmniGibson environment (micromamba)' >> /root/.bashrc \
+    && echo 'eval "$(micromamba shell hook --shell bash)"' >> /root/.bashrc \
+    && echo 'micromamba activate omnigibson' >> /root/.bashrc \
     && echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /root/.bashrc
 
 # ============================================
-# Additional Python Dependencies (use Isaac Sim's pip)
+# Install Missing Python Dependencies (use micromamba omnigibson env)
 # ============================================
-# Install OmniGibson (if not already in base image) and other dependencies
-RUN /isaac-sim/python.sh -m pip install --no-cache-dir \
-    omnigibson \
+# PyTorch is critical - OmniGibson imports fail without it
+# Also fix numpy version and install other missing deps
+RUN micromamba run -n omnigibson pip install --no-cache-dir \
+    torch \
+    'numpy<2.0.0,>=1.23.5' \
+    scipy \
+    opencv-python \
     huggingface_hub \
     wandb \
     tqdm \

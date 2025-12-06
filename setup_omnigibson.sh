@@ -11,10 +11,9 @@
 
 set -e
 
-# Source Isaac Sim environment if not already done
-if [ -z "$ISAAC_SIM_PATH" ]; then
-    source /isaac-sim/setup_conda.sh 2>/dev/null || true
-fi
+# Activate micromamba omnigibson environment
+eval "$(micromamba shell hook --shell bash)"
+micromamba activate omnigibson
 
 echo "============================================"
 echo "OmniGibson / BEHAVIOR-1K Asset Setup"
