@@ -105,7 +105,9 @@ RUN echo '# Isaac Sim / OmniGibson environment' >> /home/yubo/.bashrc \
 # ============================================
 # Additional Python Dependencies (use Isaac Sim's pip)
 # ============================================
+# Install OmniGibson (if not already in base image) and other dependencies
 RUN /isaac-sim/python.sh -m pip install --no-cache-dir \
+    omnigibson \
     huggingface_hub \
     wandb \
     tqdm \
