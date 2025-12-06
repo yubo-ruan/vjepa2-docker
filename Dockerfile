@@ -82,15 +82,6 @@ RUN useradd -m -s /bin/bash -G sudo yubo \
     && chmod 700 /home/yubo/.ssh
 
 # ============================================
-# Create jason user with sudo access
-# ============================================
-RUN useradd -m -s /bin/bash -G sudo jason \
-    && echo "jason:jason" | chpasswd \
-    && echo "jason ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
-    && mkdir -p /home/jason/.ssh \
-    && chmod 700 /home/jason/.ssh
-
-# ============================================
 # Git Configuration (for commits inside container)
 # ============================================
 RUN git config --system user.name "yubo-ruan" \
@@ -98,7 +89,7 @@ RUN git config --system user.name "yubo-ruan" \
     && git config --system init.defaultBranch main
 
 # ============================================
-# Shell Configuration (root + yubo + jason)
+# Shell Configuration (root + yubo)
 # ============================================
 RUN echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /root/.bashrc \
     && echo 'source /opt/conda/etc/profile.d/conda.sh' >> /root/.bashrc \
@@ -113,16 +104,7 @@ RUN echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /root/.bashrc
     && echo 'export HF_HOME=/workspace/.cache/huggingface' >> /home/yubo/.bashrc \
     && echo 'export TORCH_HOME=/workspace/.cache/torch' >> /home/yubo/.bashrc \
     && echo 'cd /workspace' >> /home/yubo/.bashrc \
-    && chown yubo:yubo /home/yubo/.bashrc \
-    # jason user
-    && echo 'export PIP_USER=0' >> /home/jason/.bashrc \
-    && echo 'export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH' >> /home/jason/.bashrc \
-    && echo 'source /opt/conda/etc/profile.d/conda.sh' >> /home/jason/.bashrc \
-    && echo 'conda activate base' >> /home/jason/.bashrc \
-    && echo 'export HF_HOME=/workspace/.cache/huggingface' >> /home/jason/.bashrc \
-    && echo 'export TORCH_HOME=/workspace/.cache/torch' >> /home/jason/.bashrc \
-    && echo 'cd /workspace' >> /home/jason/.bashrc \
-    && chown jason:jason /home/jason/.bashrc
+    && chown yubo:yubo /home/yubo/.bashrc
 
 # ============================================
 # Python Packages
@@ -172,9 +154,6 @@ RUN mkdir -p /workspace/.cache/huggingface \
     # Symlink ~/.claude -> /workspace/.claude for yubo
     && ln -sf /workspace/.claude /home/yubo/.claude \
     && chown -h yubo:yubo /home/yubo/.claude \
-    # Symlink ~/.claude -> /workspace/.claude for jason
-    && ln -sf /workspace/.claude /home/jason/.claude \
-    && chown -h jason:jason /home/jason/.claude \
     # Symlink ~/.claude -> /workspace/.claude for root
     && ln -sf /workspace/.claude /root/.claude \
     # Allow users to pip install to conda site-packages
