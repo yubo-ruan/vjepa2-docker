@@ -102,16 +102,15 @@ RUN echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /root/.b
     && chown yubo:yubo /home/yubo/.bashrc
 
 # ============================================
-# Install OmniGibson from GitHub (main branch)
+# Install BEHAVIOR-1K / OmniGibson from GitHub
 # ============================================
-# PyPI omnigibson==1.1.1 only supports Isaac Sim 4.0/4.1
-# Main branch should have Isaac Sim 4.5 support
+# OmniGibson is inside the BEHAVIOR-1K monorepo at OmniGibson/
 # ISAAC_SIM_PATH is required for OmniGibson to find Isaac Sim
 ENV ISAAC_SIM_PATH=/isaac-sim
 ENV ISAACSIM_PATH=/isaac-sim
 
-RUN git clone --depth 1 https://github.com/StanfordVL/OmniGibson.git /opt/omnigibson \
-    && cd /opt/omnigibson \
+RUN git clone --depth 1 https://github.com/StanfordVL/BEHAVIOR-1K.git /opt/behavior-1k \
+    && cd /opt/behavior-1k/OmniGibson \
     && /isaac-sim/python.sh -m pip install --no-cache-dir -e .
 
 # ============================================
