@@ -77,17 +77,27 @@ RUN git config --system user.name "yubo-ruan" \
     && git config --system init.defaultBranch main
 
 # ============================================
+# Python Symlinks (for non-interactive shells like Claude Code)
+# ============================================
+# Isaac Sim Python is at /isaac-sim/python.sh
+# Aliases don't work in non-interactive shells, so we create wrapper scripts
+RUN echo '#!/bin/bash' > /usr/local/bin/python \
+    && echo 'exec /isaac-sim/python.sh "$@"' >> /usr/local/bin/python \
+    && chmod +x /usr/local/bin/python \
+    && ln -sf /usr/local/bin/python /usr/local/bin/python3 \
+    # Create pip wrapper
+    && echo '#!/bin/bash' > /usr/local/bin/pip \
+    && echo 'exec /isaac-sim/python.sh -m pip "$@"' >> /usr/local/bin/pip \
+    && chmod +x /usr/local/bin/pip \
+    && ln -sf /usr/local/bin/pip /usr/local/bin/pip3
+
+# ============================================
 # Shell Configuration (root + yubo)
 # ============================================
-# Isaac Sim Python is at /isaac-sim/python.sh - create aliases for convenience
 RUN echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /root/.bashrc \
-    && echo 'alias python="/isaac-sim/python.sh"' >> /root/.bashrc \
-    && echo 'alias pip="/isaac-sim/python.sh -m pip"' >> /root/.bashrc \
     && echo 'cd /workspace' >> /root/.bashrc \
     # yubo user
     && echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /home/yubo/.bashrc \
-    && echo 'alias python="/isaac-sim/python.sh"' >> /home/yubo/.bashrc \
-    && echo 'alias pip="/isaac-sim/python.sh -m pip"' >> /home/yubo/.bashrc \
     && echo 'cd /workspace' >> /home/yubo/.bashrc \
     && chown yubo:yubo /home/yubo/.bashrc
 
