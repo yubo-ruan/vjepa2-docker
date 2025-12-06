@@ -2,7 +2,7 @@
 # Built from official NVIDIA Isaac Sim container
 # Requires NGC credentials to pull base image
 
-FROM nvcr.io/nvidia/isaac-sim:5.1.0
+FROM nvcr.io/nvidia/isaac-sim:4.5.0
 
 LABEL maintainer="yubo"
 LABEL description="BEHAVIOR-1K / OmniGibson environment with SSH support"
