@@ -106,9 +106,10 @@ RUN echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /root/.b
 # ============================================
 # PyPI omnigibson==1.1.1 only supports Isaac Sim 4.0/4.1
 # Must use GitHub v3.7.1 which has KIT_FILES for Isaac Sim 4.5
-RUN git clone -b v3.7.1 --depth 1 https://github.com/StanfordVL/OmniGibson.git /opt/omnigibson \
+# Note: Using og-develop branch for better Isaac Sim container compatibility
+RUN git clone -b og-develop --depth 1 https://github.com/StanfordVL/OmniGibson.git /opt/omnigibson \
     && cd /opt/omnigibson \
-    && /isaac-sim/python.sh -m pip install --no-cache-dir -e .
+    && /isaac-sim/python.sh -m pip install --no-cache-dir --no-build-isolation -e .
 
 # ============================================
 # Install BDDL + other dependencies
