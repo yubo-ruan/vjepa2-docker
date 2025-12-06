@@ -109,7 +109,7 @@ RUN echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /root/.b
 ENV ISAAC_SIM_PATH=/isaac-sim
 ENV ISAACSIM_PATH=/isaac-sim
 
-RUN git clone --depth 1 https://github.com/StanfordVL/BEHAVIOR-1K.git /opt/behavior-1k \
+RUN git clone -b v3.7.1 --depth 1 https://github.com/StanfordVL/BEHAVIOR-1K.git /opt/behavior-1k \
     && cd /opt/behavior-1k/OmniGibson \
     && /isaac-sim/python.sh -m pip install --no-cache-dir -e .
 
