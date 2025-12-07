@@ -116,10 +116,11 @@ RUN micromamba run -n omnigibson pip install --no-cache-dir \
     PyYAML
 
 # ============================================
-# Fix Isaac Sim permissions (shader cache needs write access)
+# Fix Isaac Sim permissions (non-root users need write access)
 # ============================================
 RUN chmod -R 777 /isaac-sim/kit/exts/omni.gpu_foundation/cache 2>/dev/null || true \
     && chmod -R 777 /isaac-sim/kit/cache 2>/dev/null || true \
+    && chmod -R 777 /isaac-sim/apps 2>/dev/null || true \
     && mkdir -p /tmp/isaac_cache && chmod 777 /tmp/isaac_cache
 
 # ============================================
