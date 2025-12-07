@@ -102,6 +102,18 @@ mkdir -p /workspace/.cache/torch 2>/dev/null || true
 chown -R yubo:yubo /workspace 2>/dev/null || true
 echo "[vjepa2] Workspace initialized"
 
+# --- Xvfb Setup (for headless GPU rendering) ---
+# Isaac Sim/OmniGibson needs a display even in headless mode
+if command -v Xvfb &> /dev/null; then
+    # Start Xvfb on display :99
+    Xvfb :99 -screen 0 1920x1080x24 &
+    export DISPLAY=:99
+    echo "[vjepa2] Xvfb started on display :99"
+    # Add DISPLAY to bashrc for interactive sessions
+    echo 'export DISPLAY=:99' >> /root/.bashrc
+    echo 'export DISPLAY=:99' >> /home/yubo/.bashrc
+fi
+
 echo "[vjepa2] Container setup complete!"
 echo "[vjepa2] SSH available on port 22"
 echo "[vjepa2] You can connect as 'root' or 'yubo' user"
