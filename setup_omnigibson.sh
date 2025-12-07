@@ -25,19 +25,23 @@ if [ -d "$OMNIGIBSON_ASSET_PATH/og_dataset" ]; then
     exit 0
 fi
 
-echo "[1/2] Downloading OmniGibson core assets (~25GB)..."
+echo "[1/2] Downloading OmniGibson dataset (scenes + objects ~25GB)..."
 echo "      This may take 20-30 minutes depending on connection speed."
 echo ""
-micromamba run -n omnigibson python -m omnigibson.utils.asset_download
+micromamba run -n omnigibson python -m omnigibson.scripts.download_datasets
 
 echo ""
-echo "[INFO] Core assets downloaded successfully!"
+echo "[INFO] OmniGibson dataset downloaded successfully!"
 
 echo ""
-echo "[2/2] Downloading BEHAVIOR-1K dataset (~50GB)..."
+echo "[2/2] Downloading BEHAVIOR-1K demo dataset (~50GB)..."
 echo "      This may take 30-60 minutes."
 echo ""
-micromamba run -n omnigibson python -m omnigibson.utils.download_datasets
+# Download BEHAVIOR demos if available
+micromamba run -n omnigibson python -c "
+from omnigibson.utils.asset_utils import download_assets
+download_assets()
+" || echo "[WARN] Additional assets download skipped (may already exist)"
 
 echo ""
 echo "[INFO] BEHAVIOR-1K dataset downloaded successfully!"
