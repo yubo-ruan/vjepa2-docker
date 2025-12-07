@@ -2,15 +2,21 @@
 # ============================================
 # Build and Push BEHAVIOR-1K Docker Image
 # ============================================
-# This script builds the behavior image locally and pushes to Docker Hub.
-# Required because Isaac Sim base image (~20GB) exceeds GitHub Actions limits.
+# Build on RunPod or any machine with Docker + disk space.
+# Only needs CPU - no GPU required for building.
 #
 # Prerequisites:
-# 1. Docker logged in to NVIDIA NGC: docker login nvcr.io
-# 2. Docker logged in to Docker Hub: docker login
-# 3. NGC credentials for Isaac Sim access
+# 1. Docker installed
+# 2. NGC credentials (for Isaac Sim base image)
+# 3. Docker Hub credentials (for pushing)
 #
-# Usage: ./build-behavior.sh
+# Usage:
+#   # First, login to registries:
+#   docker login nvcr.io -u '$oauthtoken' -p <NGC_API_KEY>
+#   docker login -u yuboruan123 -p <DOCKERHUB_TOKEN>
+#
+#   # Then build:
+#   ./build-behavior.sh
 # ============================================
 
 set -e
@@ -23,13 +29,15 @@ echo "============================================"
 echo ""
 echo "This will:"
 echo "  1. Pull NVIDIA Isaac Sim 4.1.0 base image (~8GB download)"
-echo "  2. Build the behavior image"
+echo "  2. Install BEHAVIOR-1K / OmniGibson"
 echo "  3. Push to Docker Hub as $IMAGE_NAME"
 echo ""
-echo "Estimated time: 10-30 minutes (depending on network)"
+echo "Requirements: CPU only (no GPU needed for build)"
+echo "Disk space: ~50GB free recommended"
+echo "Estimated time: 15-45 minutes"
 echo ""
 
-# Check Docker login status
+# Check Docker
 if ! docker info >/dev/null 2>&1; then
     echo "[ERROR] Docker is not running or not accessible"
     exit 1
@@ -50,6 +58,7 @@ echo "============================================"
 echo ""
 echo "Image pushed: $IMAGE_NAME"
 echo ""
-echo "To use on RunPod/cloud:"
-echo "  docker pull $IMAGE_NAME"
+echo "To deploy on RunPod:"
+echo "  Image: $IMAGE_NAME"
+echo "  Template: GPU Pod with volume mount at /workspace"
 echo ""
