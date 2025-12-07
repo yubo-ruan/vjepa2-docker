@@ -19,6 +19,9 @@ ENV OMNI_KIT_ACCEPT_EULA=YES
 # OmniGibson asset path (persistent volume)
 ENV OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets
 ENV GIBSON_ASSETS_PATH=/workspace/omnigibson_assets
+# Micromamba configuration (omnigibson env is at /micromamba/envs/omnigibson)
+ENV MAMBA_ROOT_PREFIX=/micromamba
+ENV PATH=/micromamba/envs/omnigibson/bin:$PATH
 
 # Switch to root for system setup
 USER root
