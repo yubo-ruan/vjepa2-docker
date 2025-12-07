@@ -1,6 +1,7 @@
 # BEHAVIOR-1K / OmniGibson Docker Image
 # Built from official NVIDIA Isaac Sim container
 # Requires NGC credentials to pull base image
+# NOTE: OmniGibson is installed at runtime (first boot) to keep image small
 
 FROM nvcr.io/nvidia/isaac-sim:4.1.0
 
@@ -14,9 +15,11 @@ LABEL description="BEHAVIOR-1K / OmniGibson environment with SSH support"
 ENV ACCEPT_EULA=Y
 ENV PRIVACY_CONSENT=Y
 ENV OMNI_KIT_ACCEPT_EULA=YES
-# OmniGibson asset path (persistent volume)
+# OmniGibson paths (persistent volume)
 ENV OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets
 ENV GIBSON_ASSETS_PATH=/workspace/omnigibson_assets
+ENV ISAAC_SIM_PATH=/isaac-sim
+ENV ISAACSIM_PATH=/isaac-sim
 
 # Switch to root for system setup
 USER root
@@ -95,49 +98,13 @@ RUN echo '#!/bin/bash' > /usr/local/bin/python \
 # Shell Configuration (root + yubo)
 # ============================================
 RUN echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /root/.bashrc \
+    && echo 'export ISAAC_SIM_PATH=/isaac-sim' >> /root/.bashrc \
     && echo 'cd /workspace' >> /root/.bashrc \
     # yubo user
     && echo 'export OMNIGIBSON_ASSET_PATH=/workspace/omnigibson_assets' >> /home/yubo/.bashrc \
+    && echo 'export ISAAC_SIM_PATH=/isaac-sim' >> /home/yubo/.bashrc \
     && echo 'cd /workspace' >> /home/yubo/.bashrc \
     && chown yubo:yubo /home/yubo/.bashrc
-
-# ============================================
-# Install BEHAVIOR-1K / OmniGibson from GitHub
-# ============================================
-# OmniGibson is inside the BEHAVIOR-1K monorepo at OmniGibson/
-# ISAAC_SIM_PATH is required for OmniGibson to find Isaac Sim
-ENV ISAAC_SIM_PATH=/isaac-sim
-ENV ISAACSIM_PATH=/isaac-sim
-
-RUN git clone -b v3.7.1 --depth 1 https://github.com/StanfordVL/BEHAVIOR-1K.git /opt/behavior-1k \
-    && cd /opt/behavior-1k/OmniGibson \
-    && /isaac-sim/python.sh -m pip install --no-cache-dir -e .
-
-# ============================================
-# Install BDDL + other dependencies
-# ============================================
-# Isaac Sim uses its own Python at /isaac-sim/python.sh
-RUN /isaac-sim/python.sh -m pip install --no-cache-dir \
-    bddl \
-    # Core dependencies (numpy pinned for robosuite/libero compatibility)
-    'numpy<2' \
-    # Vision model
-    transformers \
-    timm \
-    # Data loading
-    h5py \
-    # Image processing
-    opencv-python \
-    Pillow \
-    # VLM grounding (Qwen2.5-VL)
-    qwen-vl-utils \
-    accelerate \
-    # Training utilities
-    huggingface_hub \
-    wandb \
-    tqdm \
-    rich \
-    PyYAML
 
 # ============================================
 # Workspace Setup
@@ -168,4 +135,3 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD pgrep sshd > /dev/null || exit 1
 
 ENTRYPOINT ["/start.sh"]
-
